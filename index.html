@@ -1,0 +1,1255 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>carousel</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
+<style>
+  html,body{height:100%}
+  body{font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:rgba(255,255,255,.1);border-radius:9999px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:9999px;background:#fafafa}
+  input[type=color]{-webkit-appearance:none;appearance:none;border:0;background:transparent;padding:0}
+  input[type=color]::-webkit-color-swatch-wrapper{padding:0}
+  input[type=color]::-webkit-color-swatch{border:1px solid rgba(255,255,255,.1);border-radius:9999px}
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:9999px;border:3px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28);background-clip:padding-box}
+  ::-webkit-scrollbar-track{background:transparent}
+  /* keep the rail's scrollbar permanently visible so the panel reads as scrollable */
+  #rail{overflow-y:scroll;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+  .seg{height:28px}
+  .hidden-row{display:none !important}
+  /* the phone address bar makes 100vh lie; dvh follows the visible box */
+  #app{height:100vh;height:100dvh}
+  /* dragging on the canvas must move the artwork, never scroll the page */
+  #preview{touch-action:none}
+  body{overscroll-behavior:none}
+  @media (max-width:1023px){
+    .seg{height:32px}                       /* 28px is too small for a thumb */
+    #rail{padding-bottom:env(safe-area-inset-bottom)}
+    ::-webkit-scrollbar{width:0;height:0}
+    #rail{scrollbar-width:none;overflow-y:auto}
+  }
+  @media (hover:none){
+    /* no hover on touch, so the pressed state has to carry the feedback */
+    .seg:active{background:rgba(255,255,255,.14)}
+  }
+  .cbx input:checked + .box{background:rgba(255,255,255,.10)}
+  .cbx input:checked + .box svg{opacity:1;color:#fff}
+  .cbx input:checked ~ .cbx-label{color:#a3a3a3}
+</style>
+</head>
+<body class="bg-neutral-950 text-neutral-50 text-xs font-normal antialiased overflow-hidden">
+<div id="app" class="flex flex-col">
+
+  <!-- top bar -->
+  <header class="border-b border-white/10 shrink-0">
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between lg:h-14">
+      <div class="flex items-center gap-3 px-4 h-11 lg:h-auto min-w-0">
+        <div class="size-5 shrink-0 rounded bg-white/10 grid place-items-center">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-400"><path d="M3 4.75A1.75 1.75 0 0 1 4.75 3h6.5A1.75 1.75 0 0 1 13 4.75v6.5A1.75 1.75 0 0 1 11.25 13h-6.5A1.75 1.75 0 0 1 3 11.25v-6.5Zm1.5 0v6.5c0 .138.112.25.25.25h6.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25Z"/></svg>
+        </div>
+        <span class="text-neutral-50 hidden sm:inline">carousel</span>
+        <span class="text-neutral-500 shrink-0" id="countLabel">0장</span>
+        <span class="text-amber-300 truncate" id="notice"></span>
+      </div>
+      <div class="flex items-center gap-1.5 px-4 pb-2.5 lg:pb-0 overflow-x-auto shrink-0">
+        <label class="seg shrink-0 inline-flex items-center gap-1.5 px-3 rounded-full bg-white/5 hover:bg-white/10 cursor-pointer text-neutral-50">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M8 3.5a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 8 3.5Z"/></svg>
+          사진<span class="hidden sm:inline"> · 영상 추가</span>
+          <input id="filePick" type="file" accept="image/*,video/*" multiple class="hidden">
+        </label>
+        <button id="btnAddBlank" class="seg shrink-0 inline-flex items-center gap-1.5 px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-50">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M8 3.5a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 8 3.5Z"/></svg>
+          빈 장<span class="hidden sm:inline"> 추가</span>
+        </button>
+        <button id="btnExportOne" class="seg shrink-0 inline-flex items-center gap-1.5 px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-50">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M8 2a.75.75 0 0 1 .75.75v5.19l1.72-1.72a.75.75 0 1 1 1.06 1.06l-3 3a.75.75 0 0 1-1.06 0l-3-3a.75.75 0 0 1 1.06-1.06l1.72 1.72V2.75A.75.75 0 0 1 8 2ZM3 11.75a.75.75 0 0 1 .75.75v.75h8.5v-.75a.75.75 0 0 1 1.5 0v1A1.25 1.25 0 0 1 12 15.5H4a1.25 1.25 0 0 1-1.25-1.25v-1a.75.75 0 0 1 .75-.75Z"/></svg>
+          <span id="exportOneLabel">현재 장</span>
+        </button>
+        <button id="btnExportAll" class="seg shrink-0 inline-flex items-center gap-1.5 px-3 rounded-full bg-white/10 hover:bg-white/20 text-neutral-50">
+          <span id="exportAllLabel">전체 내보내기</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- main -->
+  <div class="flex-1 flex flex-col lg:flex-row min-h-0">
+
+    <!-- stage + strip -->
+    <section class="flex-1 flex flex-col min-w-0 min-h-0">
+      <div id="stage" class="flex-1 min-h-0 flex items-center justify-center p-3 lg:p-6 relative overflow-hidden">
+        <canvas id="preview" width="1080" height="1440" class="block cursor-grab select-none"></canvas>
+        <div id="empty" class="absolute inset-0 grid place-items-center pointer-events-none">
+          <div class="text-center">
+            <p class="text-neutral-400">사진 · 영상을 끌어다 놓거나 붙여넣기 (⌘V)</p>
+            <p class="text-neutral-500 mt-1 text-[11px]">빈 장으로 글부터 써도 됩니다 · 3:4 · 1080 × 1440</p>
+          </div>
+        </div>
+        <div id="dropHint" class="absolute inset-3 rounded border border-white/10 bg-white/5 hidden pointer-events-none"></div>
+      </div>
+      <div class="border-t border-white/10 shrink-0">
+        <div id="strip" class="flex items-center gap-2 px-4 py-2 lg:py-3 overflow-x-auto lg:min-h-[92px]"></div>
+      </div>
+    </section>
+
+    <!-- controls -->
+    <aside id="rail" class="w-full lg:w-[298px] shrink-0 basis-[42%] lg:basis-auto min-h-0 border-t lg:border-t-0 lg:border-l border-white/10">
+
+      <!-- on a phone the rail is too tall to scroll through, so it splits into three -->
+      <div id="tabs" class="lg:hidden sticky top-0 z-10 bg-neutral-950 border-b border-white/10 px-4 py-2 flex gap-1.5">
+        <button data-tab="text" class="seg flex-1 rounded-full">글</button>
+        <button data-tab="media" class="seg flex-1 rounded-full">사진</button>
+        <button data-tab="style" class="seg flex-1 rounded-full">스타일</button>
+      </div>
+
+      <div data-sec="text" class="px-4 py-4">
+        <p class="text-neutral-400 mb-3">텍스트</p>
+        <label class="block text-neutral-500 mb-1.5">첫째 줄</label>
+        <textarea id="l1" rows="2" placeholder="제목을 입력하세요"
+          class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 resize-none overflow-hidden"></textarea>
+        <label class="block text-neutral-500 mb-1.5 mt-3">둘째 줄</label>
+        <textarea id="l2" rows="2" placeholder="부제를 입력하세요"
+          class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 resize-none overflow-hidden"></textarea>
+        <div class="flex items-center justify-between mt-3">
+          <span class="text-neutral-500 text-[11px]">글자를 끌어서 위치 이동</span>
+          <button id="btnTextReset" class="seg px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400">위치 초기화</button>
+        </div>
+        <label class="cbx flex items-center gap-2 mt-3 cursor-pointer select-none">
+          <input id="tgTextAll" type="checkbox" class="sr-only">
+          <span class="box size-4 shrink-0 rounded bg-white/5 grid place-items-center">
+            <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500 opacity-0"><path d="M12.4 4.5a.75.75 0 0 1 .1 1.06l-4.75 5.5a.75.75 0 0 1-1.1.04L3.9 8.35a.75.75 0 0 1 1.05-1.07l2.19 2.15 4.2-4.86a.75.75 0 0 1 1.06-.07Z"/></svg>
+          </span>
+          <span class="cbx-label text-neutral-500">모든 장에 같은 위치</span>
+        </label>
+        <p class="text-neutral-500 mt-2 text-[11px]">엔터로 줄바꿈 · 빈 줄은 그만큼 여백이 됩니다</p>
+      </div>
+
+      <div data-sec="text" class="border-t border-white/10 px-4 py-4">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-neutral-400">여러 장 한번에</p>
+          <button id="btnBulk" class="seg px-3 rounded-full bg-white/10 hover:bg-white/20 text-neutral-50">채우기</button>
+        </div>
+        <textarea id="bulk" rows="7" placeholder="첫 장 제목&#10;첫 장 부제&#10;&#10;둘째 장 제목&#10;둘째 장 부제"
+          class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 resize-none"></textarea>
+        <p class="text-neutral-500 mt-2 text-[11px]">빈 줄로 장을 나눕니다 · 덩어리의 첫 줄이 제목, 나머지가 부제 · 1장부터 순서대로 채우고 모자라면 빈 장을 더 만듭니다</p>
+      </div>
+
+      <div data-sec="media" class="border-t border-white/10 px-4 py-4">
+        <p class="text-neutral-400 mb-3">배경</p>
+        <div class="flex items-center gap-1.5 mb-3">
+          <label class="seg flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-white/5 hover:bg-white/10 cursor-pointer">
+            <span id="mediaPickText">바꾸기</span><input id="replacePick" type="file" accept="image/*,video/*" class="hidden">
+          </label>
+          <button id="btnReset" class="seg px-3 rounded-full bg-white/5 hover:bg-white/10">맞춤 초기화</button>
+        </div>
+        <div id="rowZoom"></div>
+        <div id="rowFrame" class="hidden-row"></div>
+        <div id="videoBar" class="hidden-row items-center gap-1.5 mt-3">
+          <button id="btnPlay" class="seg flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-white/5 hover:bg-white/10">재생</button>
+          <button id="btnLoop" class="seg px-3 rounded-full bg-white/10 text-neutral-50">반복</button>
+          <button id="btnMute" class="seg px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400">음소거</button>
+        </div>
+        <p id="mediaHint" class="text-neutral-500 mt-3 text-[11px]">배경을 끌어서 위치를 잡으세요</p>
+      </div>
+
+      <div data-sec="media" class="border-t border-white/10 px-4 py-4">
+        <div class="flex items-center justify-between mb-3">
+          <p class="text-neutral-400">오버레이 png</p>
+          <label class="seg inline-flex items-center gap-1 px-3 rounded-full bg-white/5 hover:bg-white/10 cursor-pointer">
+            <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M8 3.5a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 8 3.5Z"/></svg>
+            추가<input id="overlayPick" type="file" accept="image/*" multiple class="hidden">
+          </label>
+        </div>
+        <div id="overlayList" class="flex flex-wrap gap-1.5 mb-3"></div>
+        <div id="rowOverlaySize"></div>
+        <div id="rowOverlayOpacity"></div>
+        <div id="overlayActions" class="flex items-center gap-1.5 mt-3 hidden-row">
+          <button id="btnOverlayAll" class="seg flex-1 rounded-full bg-white/5 hover:bg-white/10">모든 장에 적용</button>
+          <button id="btnOverlayDel" class="seg px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400">삭제</button>
+        </div>
+        <p id="overlayHint" class="text-neutral-500 mt-3 text-[11px]">로고·워터마크 png를 올려 사진 위에 얹으세요</p>
+      </div>
+
+      <div data-sec="style" class="border-t border-white/10 px-4 py-4">
+        <p class="text-neutral-400 mb-3">타이포</p>
+        <div id="rowTitleSize"></div>
+        <div id="rowSubSize"></div>
+        <div id="rowLh"></div>
+        <div id="rowTrack"></div>
+        <div class="mt-3">
+          <p class="text-neutral-500 mb-1.5">굵기</p>
+          <div id="weightToggle" class="inline-flex seg items-center rounded-full bg-white/5"></div>
+        </div>
+        <div class="mt-3 flex items-center justify-between">
+          <p class="text-neutral-500">색상</p>
+          <div class="flex items-center gap-1.5">
+            <button data-color="#ffffff" class="swatch size-5 rounded-full bg-white ring-1 ring-white/10"></button>
+            <button data-color="#0a0a0a" class="swatch size-5 rounded-full bg-neutral-950 ring-1 ring-white/20"></button>
+            <input id="colorPick" type="color" value="#ffffff" class="size-5 rounded-full overflow-hidden cursor-pointer">
+          </div>
+        </div>
+        <div id="rowSubOpacity"></div>
+      </div>
+
+      <div data-sec="style" class="border-t border-white/10 px-4 py-4">
+        <p class="text-neutral-400 mb-3">여백 · 배경</p>
+        <div id="rowPadX"></div>
+        <div id="rowPadY"></div>
+        <div id="rowScrim"></div>
+      </div>
+
+      <div data-sec="style" class="border-t border-white/10 px-4 py-4">
+        <p class="text-neutral-400 mb-3">표시</p>
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-neutral-500">페이지 번호</span>
+          <button id="tgCounter" class="seg px-3 rounded-full bg-white/5">끄기</button>
+        </div>
+        <div class="flex items-center justify-between">
+          <span class="text-neutral-500">안전영역 가이드</span>
+          <button id="tgGuide" class="seg px-3 rounded-full bg-white/5">끄기</button>
+        </div>
+      </div>
+
+      <div data-sec="style" class="border-t border-white/10 px-4 py-4">
+        <button id="btnDelete" class="seg w-full inline-flex items-center justify-center gap-1.5 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M6.5 2a.75.75 0 0 0-.75.75V3.5H3.25a.75.75 0 0 0 0 1.5h.32l.54 7.02A1.75 1.75 0 0 0 5.85 13.7h4.3a1.75 1.75 0 0 0 1.74-1.68L12.43 5h.32a.75.75 0 0 0 0-1.5H10.25v-.75A.75.75 0 0 0 9.5 2h-3Zm3.9 3-.53 6.9a.25.25 0 0 1-.25.23h-4.3a.25.25 0 0 1-.25-.23L4.6 5h5.8Z"/></svg>
+          이 장 삭제
+          <span class="font-mono text-[11px] text-neutral-500">delete</span>
+        </button>
+        <p class="text-neutral-500 mt-2 text-[11px]">⌘Z 되돌리기 · ⇧⌘Z 다시 실행</p>
+      </div>
+
+    </aside>
+  </div>
+</div>
+
+<script>
+const W = 1080, H = 1440;
+
+const style = {
+  titleSize: 68, subSize: 40, weight: 600, lineHeight: 1.32, tracking: -2.5,
+  color: '#ffffff', subOpacity: 72, padX: 72, padY: 84, scrim: 72,
+  counter: false, guide: false,
+  lockText: false, tx: 0, ty: 0   // when locked, the text offset lives here instead of on each slide
+};
+const state = { slides: [], active: 0, sel: -1 };   // sel = selected overlay on the active slide
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+/* ---------- control rows ---------- */
+function buildRow(mount, label, min, max, step) {
+  const el = document.getElementById(mount);
+  el.classList.add('mt-3', 'first:mt-0');
+  el.innerHTML = `
+    <div class="flex items-center justify-between mb-1.5">
+      <span class="text-neutral-500">${label}</span>
+      <span class="font-mono text-[11px] text-neutral-400" data-v></span>
+    </div>
+    <input type="range" min="${min}" max="${max}" step="${step}" class="w-full">`;
+  return { el, input: el.querySelector('input'), out: el.querySelector('[data-v]') };
+}
+function slider(mount, key, label, min, max, step, suffix = '') {
+  const { input, out } = buildRow(mount, label, min, max, step);
+  const sync = () => { input.value = style[key]; out.textContent = style[key] + suffix; };
+  input.addEventListener('input', () => { pushHistory('slider:' + key); style[key] = parseFloat(input.value); out.textContent = style[key] + suffix; save(); requestRender(); });
+  sync();
+  return sync;
+}
+const syncers = [];
+syncers.push(slider('rowTitleSize', 'titleSize', '제목 크기', 32, 130, 1));
+syncers.push(slider('rowSubSize', 'subSize', '부제 크기', 20, 100, 1));
+syncers.push(slider('rowLh', 'lineHeight', '행간', 1, 2, 0.01));
+syncers.push(slider('rowTrack', 'tracking', '자간', -6, 2, 0.5));
+syncers.push(slider('rowSubOpacity', 'subOpacity', '부제 투명도', 20, 100, 1, '%'));
+syncers.push(slider('rowPadX', 'padX', '좌우 여백', 24, 200, 1));
+syncers.push(slider('rowPadY', 'padY', '아래 여백', 24, 260, 1));
+syncers.push(slider('rowScrim', 'scrim', '어둡게', 0, 100, 1, '%'));
+
+/* zoom, frame and overlay rows live on the slide, not on the shared style */
+const zoomRow = buildRow('rowZoom', '확대', 100, 300, 1);
+zoomRow.input.addEventListener('input', () => {
+  const s = cur(); if (!s) return;
+  pushHistory('zoom:' + s.id);
+  s.zoom = parseInt(zoomRow.input.value) / 100;
+  zoomRow.out.textContent = zoomRow.input.value + '%';
+  requestRender(); requestStrip();
+});
+function syncZoom() { const s = cur(), z = s ? Math.round(s.zoom * 100) : 100; zoomRow.input.value = z; zoomRow.out.textContent = z + '%'; }
+
+/* a slide can exist with no media at all — the background panel says so */
+function syncMediaUI() {
+  const has = !!cur()?.media;
+  document.getElementById('mediaPickText').textContent = has ? '바꾸기' : '사진 · 영상 넣기';
+  zoomRow.el.classList.toggle('hidden-row', !has);
+  document.getElementById('btnReset').classList.toggle('hidden-row', !has);
+  document.getElementById('mediaHint').textContent = has
+    ? '배경을 끌어서 위치를 잡으세요'
+    : '글만 있는 장입니다 · 사진·영상을 넣으면 배경이 됩니다';
+}
+
+const frameRow = buildRow('rowFrame', '영상 프레임', 0, 1000, 1);
+frameRow.input.addEventListener('input', () => {
+  const m = cur()?.media;
+  if (!m || m.kind !== 'video') return;
+  m.el.pause();
+  const d = isFinite(m.el.duration) ? m.el.duration : 0;
+  m.el.currentTime = (parseInt(frameRow.input.value) / 1000) * d;
+});
+function syncFrame() {
+  const m = cur()?.media;
+  const isVideo = m && m.kind === 'video';
+  frameRow.el.classList.toggle('hidden-row', !isVideo);
+  const bar = document.getElementById('videoBar');
+  bar.classList.toggle('hidden-row', !isVideo);
+  bar.classList.toggle('flex', isVideo);
+  if (!isVideo) return;
+  const d = isFinite(m.el.duration) ? m.el.duration : 0;
+  frameRow.input.value = d ? Math.round((m.el.currentTime / d) * 1000) : 0;
+  frameRow.out.textContent = `${m.el.currentTime.toFixed(1)} / ${d.toFixed(1)}s`;
+  document.getElementById('btnPlay').textContent = m.el.paused ? '재생' : '일시정지';
+  const loop = document.getElementById('btnLoop');
+  loop.className = `seg px-3 rounded-full ${m.el.loop ? 'bg-white/10 text-neutral-50' : 'bg-white/5 text-neutral-500'}`;
+  const mute = document.getElementById('btnMute');
+  mute.textContent = m.el.muted ? '음소거' : '소리';
+  mute.className = `seg px-3 rounded-full ${m.el.muted ? 'bg-white/5 text-neutral-500' : 'bg-white/10 text-neutral-50'}`;
+}
+
+/* ---------- video playback ----------
+   the preview is a canvas, so playback means redrawing it every frame
+   with the text and overlays composited on top of the live video. */
+let playRaf = 0;
+/* drive off decoded video frames when the browser offers it — rAF is throttled
+   in background tabs and samples the video instead of following it */
+function onFrame(el, fn) {
+  if (el.requestVideoFrameCallback) return el.requestVideoFrameCallback(() => fn());
+  return requestAnimationFrame(() => fn());
+}
+function playingMedia() {
+  const m = cur()?.media;
+  return m && m.kind === 'video' && !m.el.paused && !m.el.ended ? m : null;
+}
+function playLoop() {
+  const m = playingMedia();
+  if (!m) { playRaf = 0; syncFrame(); requestStrip(); return; }
+  const ctx = preview.getContext('2d');
+  hit = draw(ctx, W, H, cur(), state.active, state.slides.length);
+  drawChrome(ctx, hit);
+  syncFrame();
+  playRaf = onFrame(m.el, playLoop) || 1;
+}
+function startLoop() {
+  const m = playingMedia();
+  if (!playRaf && m) playRaf = onFrame(m.el, playLoop) || 1;
+}
+function pauseAllVideos(except) {
+  state.slides.forEach(s => {
+    if (s.media?.kind === 'video' && s.media !== except) s.media.el.pause();
+  });
+}
+document.getElementById('btnPlay').addEventListener('click', async () => {
+  const m = cur()?.media;
+  if (!m || m.kind !== 'video') return;
+  pauseAllVideos(m);
+  if (m.el.paused) {
+    if (m.el.ended || m.el.currentTime >= (m.el.duration || 0) - 0.05) m.el.currentTime = 0;
+    try { await m.el.play(); } catch (_) { m.el.muted = true; try { await m.el.play(); } catch (_) {} }
+    startLoop();
+  } else m.el.pause();
+  syncFrame();
+});
+document.getElementById('btnLoop').addEventListener('click', () => {
+  const m = cur()?.media; if (!m || m.kind !== 'video') return;
+  m.el.loop = !m.el.loop; syncFrame();
+});
+document.getElementById('btnMute').addEventListener('click', () => {
+  const m = cur()?.media; if (!m || m.kind !== 'video') return;
+  m.el.muted = !m.el.muted; syncFrame();
+});
+
+const ovSizeRow = buildRow('rowOverlaySize', '크기', 5, 100, 1);
+ovSizeRow.input.addEventListener('input', () => {
+  const o = selOverlay(); if (!o) return;
+  pushHistory('ovsize:' + state.sel);
+  o.w = (parseInt(ovSizeRow.input.value) / 100) * W;
+  ovSizeRow.out.textContent = ovSizeRow.input.value + '%';
+  requestRender(); requestStrip();
+});
+const ovOpacityRow = buildRow('rowOverlayOpacity', '투명도', 10, 100, 1);
+ovOpacityRow.input.addEventListener('input', () => {
+  const o = selOverlay(); if (!o) return;
+  pushHistory('ovalpha:' + state.sel);
+  o.alpha = parseInt(ovOpacityRow.input.value) / 100;
+  ovOpacityRow.out.textContent = ovOpacityRow.input.value + '%';
+  requestRender(); requestStrip();
+});
+
+/* ---------- weight toggle ---------- */
+const weights = [400, 500, 600, 700, 800];
+const wt = document.getElementById('weightToggle');
+wt.innerHTML = weights.map(w => `<button data-w="${w}" class="seg px-2.5 rounded-full text-[11px]">${w}</button>`).join('');
+wt.addEventListener('click', e => {
+  const b = e.target.closest('[data-w]'); if (!b) return;
+  pushHistory();
+  style.weight = parseInt(b.dataset.w); syncWeight(); save(); requestRender(); requestStrip();
+});
+function syncWeight() {
+  wt.querySelectorAll('[data-w]').forEach(b => {
+    const on = parseInt(b.dataset.w) === style.weight;
+    b.className = `seg px-2.5 rounded-full text-[11px] ${on ? 'bg-white/10 text-neutral-50' : 'text-neutral-500 hover:text-neutral-400'}`;
+  });
+}
+
+/* ---------- color ---------- */
+document.querySelectorAll('.swatch').forEach(b => b.addEventListener('click', () => {
+  pushHistory();
+  style.color = b.dataset.color; document.getElementById('colorPick').value = style.color; save(); requestRender(); requestStrip();
+}));
+document.getElementById('colorPick').addEventListener('input', e => { pushHistory('color'); style.color = e.target.value; save(); requestRender(); requestStrip(); });
+
+/* ---------- toggles ---------- */
+for (const [id, key] of [['tgCounter', 'counter'], ['tgGuide', 'guide']]) {
+  document.getElementById(id).addEventListener('click', () => { pushHistory(); style[key] = !style[key]; syncToggles(); save(); requestRender(); });
+}
+function syncToggles() {
+  for (const [id, key] of [['tgCounter', 'counter'], ['tgGuide', 'guide']]) {
+    const b = document.getElementById(id);
+    b.textContent = style[key] ? '켜기' : '끄기';
+    b.className = `seg px-3 rounded-full ${style[key] ? 'bg-white/10 text-neutral-50' : 'bg-white/5 text-neutral-500'}`;
+  }
+}
+
+/* ---------- media loading ---------- */
+function cur() { return state.slides[state.active] || null; }
+function selOverlay() { const s = cur(); return s && s.overlays[state.sel] ? s.overlays[state.sel] : null; }
+let uid = 0;
+
+function loadMedia(file) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(file);
+    if (file.type.startsWith('video/')) {
+      const el = document.createElement('video');
+      el.muted = true; el.playsInline = true; el.preload = 'auto'; el.loop = true;
+
+      // the element lives off-DOM, so redraws hang off the element itself
+      const redraw = () => { requestRender(); requestStrip(); };
+      el.addEventListener('seeked', redraw);
+      el.addEventListener('loadeddata', redraw);
+
+      let settled = false;
+      const finish = ok => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        if (!ok || !el.videoWidth) return resolve(null);
+        // nudge off frame zero for a usable poster, but never block on it
+        if (!el.currentTime) el.currentTime = Math.min(0.1, (el.duration || 1) / 10);
+        resolve({ kind: 'video', el, w: el.videoWidth, h: el.videoHeight });
+      };
+      // metadata is enough to size the slide; waiting on a seek can hang forever
+      el.addEventListener('loadedmetadata', () => finish(true), { once: true });
+      el.addEventListener('error', () => finish(false), { once: true });
+      const timer = setTimeout(() => finish(!!el.videoWidth), 10000);
+      el.src = url;
+    } else if (file.type.startsWith('image/')) {
+      const el = new Image();
+      el.onload = () => resolve({ kind: 'image', el, w: el.naturalWidth, h: el.naturalHeight });
+      el.onerror = () => resolve(null);
+      el.src = url;
+    } else resolve(null);
+  });
+}
+
+function newSlide(media = null) { return { id: ++uid, media, zoom: 1, ox: 0, oy: 0, tx: 0, ty: 0, l1: '', l2: '', overlays: [] }; }
+
+let noticeTimer = 0;
+function notify(msg) {
+  const el = document.getElementById('notice');
+  el.textContent = msg;
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(() => { el.textContent = ''; }, 6000);
+}
+
+function putMedia(s, m) { s.media = m; s.zoom = 1; s.ox = 0; s.oy = 0; }
+
+/* files land in the text-only slides first, in order, so you can write all the
+   copy up front and then drop the photos in one go. leftovers become new slides. */
+async function addFiles(files) {
+  const list = [...files].filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
+  if (!list.length) return;
+  const loaded = await Promise.all(list.map(loadMedia));
+  const failed = loaded.filter(m => !m).length;
+  if (failed) notify(`${failed}개는 브라우저가 열지 못하는 형식이라 건너뛰었습니다`);
+  const ok = loaded.filter(Boolean);
+  if (!ok.length) return refreshAll();
+
+  pushHistory();
+  let first = -1;
+  for (const m of ok) {
+    const slot = state.slides.findIndex(s => !s.media);
+    if (slot >= 0) putMedia(state.slides[slot], m);
+    else state.slides.push(newSlide(m));
+    if (first < 0) first = slot >= 0 ? slot : state.slides.length - 1;
+  }
+  state.active = clamp(first, 0, state.slides.length - 1);
+  state.sel = -1;
+  saveDoc();
+  refreshAll();
+}
+
+/* ---------- text-only slides ---------- */
+document.getElementById('btnAddBlank').addEventListener('click', () => {
+  pushHistory();
+  state.slides.push(newSlide(null));
+  state.active = state.slides.length - 1;
+  state.sel = -1;
+  saveDoc();
+  refreshAll();
+  document.getElementById('l1').focus();
+});
+
+function parseBlocks(text) {
+  return text.split(/\n\s*\n/).map(b => b.replace(/\s+$/, '')).filter(b => b.trim()).map(b => {
+    const [head, ...rest] = b.split('\n');
+    return { l1: head.trim(), l2: rest.join('\n').trim() };
+  });
+}
+document.getElementById('btnBulk').addEventListener('click', () => {
+  const blocks = parseBlocks(document.getElementById('bulk').value);
+  if (!blocks.length) return notify('붙여넣은 글이 없습니다');
+  pushHistory();
+  blocks.forEach((b, i) => {
+    if (!state.slides[i]) state.slides.push(newSlide(null));
+    state.slides[i].l1 = b.l1;
+    state.slides[i].l2 = b.l2;
+  });
+  state.active = 0;
+  state.sel = -1;
+  saveDoc();
+  refreshAll();
+  notify(`${blocks.length}장에 글을 채웠습니다`);
+});
+
+document.getElementById('filePick').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+document.getElementById('replacePick').addEventListener('change', async e => {
+  const f = e.target.files[0];
+  e.target.value = '';
+  if (!f) return;
+  const m = await loadMedia(f);
+  if (!m) return notify('브라우저가 열지 못하는 형식입니다');
+  pushHistory();
+  let s = cur();
+  if (!s) { s = newSlide(null); state.slides.push(s); state.active = state.slides.length - 1; }
+  putMedia(s, m);
+  refreshAll();
+});
+document.getElementById('overlayPick').addEventListener('change', async e => {
+  const s = cur(); const files = [...e.target.files];
+  e.target.value = '';
+  if (!s || !files.length) return;
+  pushHistory();
+  for (const f of files) {
+    const m = await loadMedia(f);
+    if (!m || m.kind !== 'image') continue;
+    const w = W * 0.3;
+    s.overlays.push({ img: m.el, iw: m.w, ih: m.h, cx: W / 2, cy: H / 2, w, alpha: 1 });
+  }
+  state.sel = s.overlays.length - 1;
+  refreshAll();
+});
+
+document.getElementById('btnReset').addEventListener('click', () => { const s = cur(); if (!s) return; pushHistory(); s.zoom = 1; s.ox = 0; s.oy = 0; syncZoom(); requestRender(); requestStrip(); });
+/* ---------- text position, per slide or shared ---------- */
+function textPos(s) {
+  return style.lockText ? { x: style.tx, y: style.ty } : { x: s?.tx || 0, y: s?.ty || 0 };
+}
+function setTextPos(s, x, y) {
+  if (style.lockText) { style.tx = x; style.ty = y; save(); }
+  else { s.tx = x; s.ty = y; }
+}
+const tgTextAll = document.getElementById('tgTextAll');
+tgTextAll.addEventListener('change', () => {
+  pushHistory();
+  style.lockText = tgTextAll.checked;
+  if (style.lockText) {
+    // adopt the slide you're looking at, so nothing moves under you
+    const s = cur();
+    style.tx = s?.tx || 0; style.ty = s?.ty || 0;
+  } else {
+    // leaving the lock keeps every slide exactly where it sits
+    state.slides.forEach(s => { s.tx = style.tx; s.ty = style.ty; });
+  }
+  save(); saveDoc(); requestRender(); requestStrip();
+});
+
+document.getElementById('btnTextReset').addEventListener('click', () => {
+  const s = cur(); if (!s) return;
+  pushHistory();
+  setTextPos(s, 0, 0);
+  saveDoc(); requestRender(); requestStrip();
+});
+/* ---------- undo / redo ----------
+   every edit snapshots the deck first. media elements are carried by reference,
+   so a snapshot is cheap even with video slides. */
+const past = [], future = [];
+let lastTag = '', lastAt = 0;
+
+function copySlides(list) { return list.map(s => ({ ...s, overlays: s.overlays.map(o => ({ ...o })) })); }
+function snapshot() { return { slides: copySlides(state.slides), active: state.active, style: { ...style } }; }
+
+/* call BEFORE mutating. edits carrying the same tag fold into one step, so a
+   typed word or a dragged slider is one undo. the tag carries the slide id and
+   the field, so moving to another field or slide starts a new step by itself —
+   the timeout is only a backstop for a very long session. */
+const RUN_MS = 3000;
+function endHistoryRun() { lastTag = ''; }
+function pushHistory(tag = '') {
+  const now = Date.now();
+  if (tag && tag === lastTag && now - lastAt < RUN_MS) { lastAt = now; return; }
+  lastTag = tag; lastAt = now;
+  past.push(snapshot());
+  if (past.length > 80) past.shift();
+  future.length = 0;
+}
+function applySnapshot(snap) {
+  state.slides = copySlides(snap.slides);
+  state.active = clamp(snap.active, 0, Math.max(0, state.slides.length - 1));
+  state.sel = -1;
+  Object.assign(style, snap.style);
+  syncers.forEach(fn => fn());
+  document.getElementById('colorPick').value = style.color;
+  save(); refreshAll();
+}
+function undo() {
+  if (!past.length) return notify('되돌릴 작업이 없습니다');
+  future.push(snapshot());
+  applySnapshot(past.pop());
+  lastTag = '';
+  notify('되돌렸습니다 · ⇧⌘Z로 다시 실행');
+}
+function redo() {
+  if (!future.length) return notify('다시 실행할 작업이 없습니다');
+  past.push(snapshot());
+  applySnapshot(future.pop());
+  lastTag = '';
+  notify('다시 실행했습니다');
+}
+
+function deleteSlide(i = state.active) {
+  if (!state.slides.length) return;
+  pushHistory();
+  state.slides.splice(i, 1);
+  state.active = clamp(i, 0, Math.max(0, state.slides.length - 1));
+  state.sel = -1;
+  refreshAll();
+  notify(`${i + 1}장을 삭제했습니다 · ⌘Z로 되돌리기`);
+}
+document.getElementById('btnDelete').addEventListener('click', () => deleteSlide());
+document.getElementById('btnOverlayDel').addEventListener('click', () => {
+  const s = cur(); if (!s || state.sel < 0) return;
+  pushHistory();
+  s.overlays.splice(state.sel, 1);
+  state.sel = s.overlays.length ? Math.min(state.sel, s.overlays.length - 1) : -1;
+  refreshAll();
+});
+document.getElementById('btnOverlayAll').addEventListener('click', () => {
+  const o = selOverlay(); if (!o) return;
+  pushHistory();
+  state.slides.forEach((s, i) => { if (i !== state.active) s.overlays.push({ ...o }); });
+  refreshAll();
+});
+
+/* ---------- text inputs ---------- */
+function autoGrow(el) { el.style.height = 'auto'; el.style.height = Math.max(52, el.scrollHeight) + 'px'; }
+['l1', 'l2'].forEach(key => {
+  const el = document.getElementById(key);
+  el.addEventListener('input', () => {
+    const s = cur();
+    if (s) { pushHistory(`text:${s.id}:${key}`); s[key] = el.value; saveDoc(); requestRender(); requestStrip(); }
+    autoGrow(el);
+  });
+  // leaving the field closes the undo step, so coming back starts a fresh one
+  el.addEventListener('blur', endHistoryRun);
+});
+
+/* ---------- drop + paste ---------- */
+const stage = document.getElementById('stage'), dropHint = document.getElementById('dropHint');
+['dragenter', 'dragover'].forEach(t => stage.addEventListener(t, e => { e.preventDefault(); dropHint.classList.remove('hidden'); }));
+['dragleave', 'drop'].forEach(t => stage.addEventListener(t, e => { e.preventDefault(); dropHint.classList.add('hidden'); }));
+stage.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+window.addEventListener('paste', e => {
+  const items = [...(e.clipboardData?.items || [])].filter(i => i.type.startsWith('image/') || i.type.startsWith('video/'));
+  if (items.length) addFiles(items.map(i => i.getAsFile()).filter(Boolean));
+});
+
+/* ---------- direct manipulation on the preview ---------- */
+const preview = document.getElementById('preview');
+let hit = { text: null, overlays: [] };   // boxes in 1080-space, refreshed on every preview render
+let drag = null;
+
+function toCanvas(e) {
+  const r = preview.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * (W / r.width), y: (e.clientY - r.top) * (H / r.height), k: W / r.width };
+}
+const inBox = (p, b) => b && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+
+preview.addEventListener('pointerdown', e => {
+  const s = cur(); if (!s) return;
+  const p = toCanvas(e);
+  try { preview.setPointerCapture(e.pointerId); } catch (_) {}
+  preview.style.cursor = 'grabbing';
+
+  // topmost overlay first, then the text block, then the background
+  for (let i = hit.overlays.length - 1; i >= 0; i--) {
+    if (inBox(p, hit.overlays[i])) {
+      state.sel = i;
+      const o = s.overlays[i];
+      drag = { mode: 'overlay', i, px: p.x, py: p.y, ax: o.cx, ay: o.cy };
+      syncOverlayUI();
+      requestRender();
+      return;
+    }
+  }
+  if (inBox(p, hit.text)) { const t = textPos(s); drag = { mode: 'text', px: p.x, py: p.y, ax: t.x, ay: t.y }; return; }
+  if (s.media) {
+    state.sel = -1; syncOverlayUI();
+    drag = { mode: 'media', px: p.x, py: p.y, ax: s.ox, ay: s.oy };
+    requestRender();
+  }
+});
+
+preview.addEventListener('pointermove', e => {
+  const s = cur(); if (!drag || !s) return;
+  const p = toCanvas(e), dx = p.x - drag.px, dy = p.y - drag.py;
+  // one history step per drag, taken before the first pixel moves
+  if (!drag.pushed) { drag.pushed = true; pushHistory(); }
+
+  if (drag.mode === 'overlay') {
+    const o = s.overlays[drag.i]; if (!o) return;
+    o.cx = clamp(drag.ax + dx, 0, W);
+    o.cy = clamp(drag.ay + dy, 0, H);
+  } else if (drag.mode === 'text') {
+    setTextPos(s,
+      clamp(drag.ax + dx, -style.padX, W - style.padX - 40),
+      clamp(drag.ay + dy, -(H - style.padY - 40), style.padY));
+  } else {
+    const g = geo(s, W, H);
+    s.ox = g.maxX > 0.5 ? clamp(drag.ax + dx / g.maxX, -1, 1) : 0;
+    s.oy = g.maxY > 0.5 ? clamp(drag.ay + dy / g.maxY, -1, 1) : 0;
+  }
+  requestRender();
+});
+
+['pointerup', 'pointercancel'].forEach(t => preview.addEventListener(t, () => {
+  if (drag) requestStrip();
+  if (drag?.mode === 'text') saveDoc();
+  drag = null;
+  preview.style.cursor = 'grab';
+}));
+
+preview.addEventListener('pointermove', e => {
+  if (drag) return;
+  const p = toCanvas(e);
+  const over = hit.overlays.some(b => inBox(p, b)) || inBox(p, hit.text);
+  preview.style.cursor = over ? 'move' : 'grab';
+});
+
+/* ---------- drawing ---------- */
+function geo(s, w, h) {
+  const m = s.media;
+  const scale = Math.max(w / m.w, h / m.h) * s.zoom;
+  const dw = m.w * scale, dh = m.h * scale;
+  return { dw, dh, maxX: (dw - w) / 2, maxY: (dh - h) / 2 };
+}
+
+function wrap(ctx, text, maxW) {
+  const out = [];
+  for (const para of text.split('\n')) {
+    // an empty line stays an empty line box — that's how you buy extra spacing
+    if (!para.trim()) { out.push(''); continue; }
+    let line = '';
+    for (const word of para.split(/(\s+)/)) {
+      const test = line + word;
+      if (ctx.measureText(test).width > maxW && line.trim()) { out.push(line.trimEnd()); line = word.trimStart(); }
+      else line = test;
+    }
+    if (line.trim()) out.push(line.trimEnd());
+  }
+  return out;
+}
+
+function fontStr(weight, size) { return `${weight} ${size}px "Pretendard Variable", Pretendard, sans-serif`; }
+
+async function ensureFonts(slide) {
+  const txt = (slide?.l1 || '') + (slide?.l2 || '') + '0123456789/';
+  try {
+    await Promise.all([
+      document.fonts.load(fontStr(style.weight, 100), txt),
+      document.fonts.load(fontStr(400, 100), txt)
+    ]);
+  } catch (_) {}
+}
+
+/* returns hit boxes in the drawn space so the caller can map clicks back to elements */
+function draw(ctx, w, h, s, idx, total) {
+  const k = w / W;
+  const boxes = { text: null, overlays: [] };
+  ctx.save();
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#0a0a0a';
+  ctx.fillRect(0, 0, w, h);
+
+  if (s?.media) {
+    const g = geo(s, w, h);
+    const dx = (w - g.dw) / 2 + s.ox * g.maxX;
+    const dy = (h - g.dh) / 2 + s.oy * g.maxY;
+    try { ctx.drawImage(s.media.el, dx, dy, g.dw, g.dh); } catch (_) {}
+  }
+
+  if (style.scrim > 0) {
+    const grad = ctx.createLinearGradient(0, h * 0.35, 0, h);
+    const a = style.scrim / 100;
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(0.55, `rgba(0,0,0,${(a * 0.35).toFixed(3)})`);
+    grad.addColorStop(1, `rgba(0,0,0,${a.toFixed(3)})`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, h * 0.35, w, h * 0.65);
+  }
+
+  (s?.overlays || []).forEach(o => {
+    const ow = o.w * k, oh = ow * (o.ih / o.iw);
+    const ox = o.cx * k - ow / 2, oy = o.cy * k - oh / 2;
+    ctx.globalAlpha = o.alpha ?? 1;
+    try { ctx.drawImage(o.img, ox, oy, ow, oh); } catch (_) {}
+    ctx.globalAlpha = 1;
+    boxes.overlays.push({ x: ox / k, y: oy / k, w: ow / k, h: oh / k });
+  });
+
+  const padX = style.padX * k, padY = style.padY * k;
+  const tp = textPos(s);
+  const tx = tp.x * k, ty = tp.y * k;
+  const maxW = w - padX * 2;
+  const lines = [];
+
+  const setF = (weight, size) => {
+    ctx.font = fontStr(weight, size);
+    try { ctx.letterSpacing = `${style.tracking * size / 68}px`; } catch (_) {}
+  };
+
+  if (s?.l1) {
+    const size = style.titleSize * k;
+    setF(style.weight, size);
+    wrap(ctx, s.l1, maxW).forEach(t => lines.push({ t, size, weight: style.weight, alpha: 1 }));
+  }
+  if (s?.l2) {
+    const size = style.subSize * k;
+    setF(400, size);
+    wrap(ctx, s.l2, maxW).forEach(t => lines.push({ t, size, weight: 400, alpha: style.subOpacity / 100 }));
+  }
+
+  if (lines.length) {
+    const lb = lines.map(l => l.size * style.lineHeight);
+    const totalH = lb.reduce((a, b) => a + b, 0);
+    const x0 = padX + tx;
+    let y = h - padY - totalH + ty;
+    boxes.text = { x: x0 / k, y: y / k, w: 0, h: totalH / k };
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    let widest = 0;
+    lines.forEach((l, i) => {
+      setF(l.weight, l.size);
+      ctx.globalAlpha = l.alpha;
+      ctx.fillStyle = style.color;
+      if (l.t) {
+        ctx.fillText(l.t, x0, y + lb[i] / 2 + l.size * 0.35);
+        widest = Math.max(widest, ctx.measureText(l.t).width);
+      }
+      y += lb[i];
+    });
+    ctx.globalAlpha = 1;
+    boxes.text.w = Math.max(widest, 40 * k) / k;
+  }
+
+  if (style.counter && total > 1) {
+    const size = 26 * k;
+    ctx.font = fontStr(500, size);
+    try { ctx.letterSpacing = '0px'; } catch (_) {}
+    ctx.textAlign = 'right';
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = style.color;
+    ctx.fillText(`${idx + 1} / ${total}`, w - padX, h - padY + size * 0.35);
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+  return boxes;
+}
+
+/* editor-only chrome — never part of an export */
+function drawChrome(ctx, boxes) {
+  ctx.save();
+  // a media-less slide gets a hairline so the empty frame reads as intentional
+  if (state.slides.length && !cur()?.media) {
+    ctx.strokeStyle = 'rgba(255,255,255,.10)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([14, 12]);
+    ctx.strokeRect(24, 24, W - 48, H - 48);
+    ctx.setLineDash([]);
+  }
+  if (style.guide) {
+    ctx.strokeStyle = 'rgba(255,255,255,.18)';
+    ctx.lineWidth = 1;
+    const m = style.padX;
+    ctx.strokeRect(m + .5, m + .5, W - m * 2 - 1, H - m * 2 - 1);
+    ctx.beginPath(); ctx.moveTo(0, H - 180); ctx.lineTo(W, H - 180); ctx.stroke();
+  }
+  const b = boxes.overlays[state.sel];
+  if (b) {
+    ctx.strokeStyle = 'rgba(255,255,255,.7)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([10, 8]);
+    ctx.strokeRect(b.x, b.y, b.w, b.h);
+  }
+  ctx.restore();
+}
+
+/* ---------- phone layout ----------
+   same page, same link: under 1024px the rail becomes three tabbed panels
+   so the controls stay reachable without a long scroll. */
+const mqPhone = window.matchMedia('(max-width: 1023px)');
+const isTouch = window.matchMedia('(hover: none)').matches;
+let tab = 'text';
+function syncTabs() {
+  const phone = mqPhone.matches;
+  document.querySelectorAll('[data-sec]').forEach(el => {
+    el.classList.toggle('hidden-row', phone && el.dataset.sec !== tab);
+  });
+  document.querySelectorAll('#tabs [data-tab]').forEach(b => {
+    const on = b.dataset.tab === tab;
+    b.className = `seg flex-1 rounded-full ${on ? 'bg-white/10 text-neutral-50' : 'bg-white/5 text-neutral-500'}`;
+  });
+}
+document.getElementById('tabs').addEventListener('click', e => {
+  const b = e.target.closest('[data-tab]'); if (!b) return;
+  tab = b.dataset.tab;
+  syncTabs();
+  document.getElementById('rail').scrollTop = 0;
+});
+mqPhone.addEventListener('change', () => { syncTabs(); fitPreview(); requestRender(); requestStrip(); });
+
+/* ---------- fit the preview to the stage ----------
+   percentage max-height on a replaced element doesn't resolve reliably here,
+   so size the canvas from the stage's content box directly. */
+function fitPreview() {
+  const cs = getComputedStyle(stage);
+  const availW = stage.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  const availH = stage.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  if (availW <= 0 || availH <= 0) return;
+  const w = Math.max(160, Math.floor(Math.min(availW, availH * W / H)));
+  preview.style.width = w + 'px';
+  preview.style.height = Math.round(w * H / W) + 'px';
+}
+new ResizeObserver(fitPreview).observe(stage);
+window.addEventListener('resize', fitPreview);
+
+/* ---------- render ---------- */
+let rafR = 0;
+function requestRender() { if (rafR) return; rafR = requestAnimationFrame(async () => { rafR = 0; await renderPreview(); }); }
+async function renderPreview() {
+  const s = cur();
+  fitPreview();
+  await ensureFonts(s);
+  const ctx = preview.getContext('2d');
+  hit = draw(ctx, W, H, s, state.active, state.slides.length);
+  drawChrome(ctx, hit);
+  syncFrame();
+  document.getElementById('empty').classList.toggle('hidden', !!s);
+  preview.classList.toggle('opacity-0', !s);
+}
+
+let rafS = 0;
+function requestStrip() { if (rafS) return; rafS = requestAnimationFrame(() => { rafS = 0; renderStrip(); }); }
+function renderStrip() {
+  const strip = document.getElementById('strip');
+  strip.innerHTML = '';
+  // a fingertip needs a bigger target than a cursor does
+  const tw = (isTouch || mqPhone.matches) ? 60 : 49.5, th = tw * 4 / 3;
+  state.slides.forEach((s, i) => {
+    const btn = document.createElement('button');
+    btn.className = `relative shrink-0 rounded overflow-hidden ${i === state.active ? 'ring-1 ring-white/40' : 'ring-1 ring-white/10 opacity-60 hover:opacity-100'}`;
+    const c = document.createElement('canvas');
+    c.width = 99; c.height = 132;
+    c.style.display = 'block'; c.style.width = tw + 'px'; c.style.height = th + 'px';
+    draw(c.getContext('2d'), 99, 132, s, i, state.slides.length);
+    btn.appendChild(c);
+    btn.addEventListener('click', () => { state.active = i; state.sel = -1; refreshAll(); });
+    strip.appendChild(btn);
+
+    if (s.media?.kind === 'video' || !s.media) {
+      const tag = document.createElement('span');
+      tag.className = 'absolute top-1 left-1 px-1 rounded-full bg-white/10 text-[9px] text-neutral-50';
+      tag.textContent = s.media ? '영상' : '글';
+      btn.appendChild(tag);
+    }
+
+    if (i === state.active && state.slides.length > 1) {
+      const nav = document.createElement('div');
+      nav.className = 'absolute inset-x-0 bottom-0 flex justify-between bg-neutral-950/70';
+      nav.innerHTML = `
+        <span data-m="-1" class="px-2 py-1 text-neutral-400 hover:text-neutral-50 cursor-pointer">‹</span>
+        <span data-m="1" class="px-2 py-1 text-neutral-400 hover:text-neutral-50 cursor-pointer">›</span>`;
+      nav.addEventListener('click', e => {
+        const m = e.target.dataset.m; if (!m) return;
+        e.stopPropagation();
+        const j = state.active + parseInt(m);
+        if (j < 0 || j >= state.slides.length) return;
+        pushHistory();
+        [state.slides[state.active], state.slides[j]] = [state.slides[j], state.slides[state.active]];
+        state.active = j; refreshAll();
+      });
+      btn.appendChild(nav);
+    }
+  });
+
+  const add = document.createElement('label');
+  add.className = 'shrink-0 rounded grid place-items-center bg-white/5 hover:bg-white/10 cursor-pointer';
+  add.style.width = tw + 'px'; add.style.height = th + 'px';
+  add.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500"><path d="M8 3.5a.75.75 0 0 1 .75.75v3h3a.75.75 0 0 1 0 1.5h-3v3a.75.75 0 0 1-1.5 0v-3h-3a.75.75 0 0 1 0-1.5h3v-3A.75.75 0 0 1 8 3.5Z"/></svg><input type="file" accept="image/*,video/*" multiple class="hidden">`;
+  add.querySelector('input').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
+  strip.appendChild(add);
+}
+
+function syncOverlayUI() {
+  const s = cur();
+  const list = document.getElementById('overlayList');
+  const items = s?.overlays || [];
+  list.innerHTML = '';
+  items.forEach((o, i) => {
+    const b = document.createElement('button');
+    b.className = `size-9 rounded grid place-items-center overflow-hidden ${i === state.sel ? 'ring-1 ring-white/40 bg-white/10' : 'ring-1 ring-white/10 bg-white/5 opacity-70 hover:opacity-100'}`;
+    const im = document.createElement('img');
+    im.src = o.img.src; im.className = 'max-w-full max-h-full object-contain';
+    b.appendChild(im);
+    b.addEventListener('click', () => { state.sel = i; syncOverlayUI(); requestRender(); });
+    list.appendChild(b);
+  });
+
+  const o = selOverlay();
+  ovSizeRow.el.classList.toggle('hidden-row', !o);
+  ovOpacityRow.el.classList.toggle('hidden-row', !o);
+  document.getElementById('overlayActions').classList.toggle('hidden-row', !o);
+  document.getElementById('overlayHint').classList.toggle('hidden-row', items.length > 0);
+  if (o) {
+    const pct = Math.round((o.w / W) * 100);
+    ovSizeRow.input.value = pct; ovSizeRow.out.textContent = pct + '%';
+    const ap = Math.round((o.alpha ?? 1) * 100);
+    ovOpacityRow.input.value = ap; ovOpacityRow.out.textContent = ap + '%';
+  }
+}
+
+function refreshAll() {
+  const s = cur();
+  ['l1', 'l2'].forEach(key => {
+    const el = document.getElementById(key);
+    el.value = s?.[key] || '';
+    autoGrow(el);
+  });
+  const blanks = state.slides.filter(x => !x.media).length;
+  document.getElementById('countLabel').textContent =
+    `${state.slides.length}장` + (blanks ? ` · 글만 ${blanks}장` : '');
+  pauseAllVideos(s?.media);
+  saveDoc();
+  tgTextAll.checked = style.lockText;
+  syncZoom(); syncMediaUI(); syncWeight(); syncToggles(); syncOverlayUI(); syncFrame(); syncExportLabel(); syncTabs(); fitPreview();
+  requestRender(); requestStrip();
+}
+
+/* ---------- export ---------- */
+const btnOne = document.getElementById('btnExportOne'), btnAll = document.getElementById('btnExportAll');
+let busy = false;
+
+function download(blob, name) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);   // safari only follows anchors that are in the document
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+const exportOneLabel = document.getElementById('exportOneLabel');
+const exportAllLabel = document.getElementById('exportAllLabel');
+function syncExportLabel() {
+  if (busy) return;
+  const isVideo = cur()?.media?.kind === 'video';
+  const short = mqPhone.matches;   // the phone header has no room for the long form
+  exportOneLabel.textContent = (short ? '현재' : '현재 장') + (isVideo ? ' · 영상' : '');
+  exportAllLabel.textContent = short ? '전체' : '전체 내보내기';
+}
+
+async function exportImage(i) {
+  const s = state.slides[i];
+  await ensureFonts(s);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  draw(c.getContext('2d'), W, H, s, i, state.slides.length);
+  const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+  download(blob, `carousel-${String(i + 1).padStart(2, '0')}.png`);
+}
+
+/* not every phone browser can record a canvas — check before promising a video */
+function canRecord() {
+  return typeof MediaRecorder !== 'undefined'
+    && typeof HTMLCanvasElement.prototype.captureStream === 'function'
+    && ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9', 'video/webm'].some(t => {
+      try { return MediaRecorder.isTypeSupported(t); } catch (_) { return false; }
+    });
+}
+
+/* records the composited canvas in real time, so it takes as long as the clip runs */
+async function exportVideo(i, onProgress) {
+  const s = state.slides[i], m = s.media;
+  await ensureFonts(s);
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const ctx = c.getContext('2d');
+
+  const stream = c.captureStream(30);
+  try {
+    const audio = m.el.captureStream?.() || m.el.mozCaptureStream?.();
+    const track = audio?.getAudioTracks?.()[0];
+    if (track) stream.addTrack(track);
+  } catch (_) {}
+
+  const mime = ['video/mp4;codecs=avc1', 'video/webm;codecs=vp9', 'video/webm']
+    .find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 10_000_000 });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+
+  const wasLoop = m.el.loop, wasMuted = m.el.muted;
+  m.el.loop = false;
+  m.el.pause();
+  m.el.currentTime = 0;
+  await new Promise(r => m.el.addEventListener('seeked', r, { once: true }));
+
+  const duration = isFinite(m.el.duration) ? m.el.duration : 0;
+  rec.start();
+  await m.el.play();
+
+  let stop;
+  const done = new Promise(r => { stop = r; });
+  const tick = () => {
+    if (m.el.ended || m.el.paused) { stop(); return; }
+    draw(ctx, W, H, s, i, state.slides.length);
+    onProgress?.(duration ? m.el.currentTime / duration : 0);
+    onFrame(m.el, tick);
+  };
+  m.el.addEventListener('ended', () => stop(), { once: true });
+  onFrame(m.el, tick);
+  await done;
+
+  draw(ctx, W, H, s, i, state.slides.length);
+  await new Promise(r => setTimeout(r, 120));
+  rec.stop();
+  await new Promise(r => rec.onstop = r);
+
+  m.el.loop = wasLoop; m.el.muted = wasMuted; m.el.currentTime = 0;
+  const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
+  download(new Blob(chunks, { type: mime }), `carousel-${String(i + 1).padStart(2, '0')}.${ext}`);
+}
+
+async function exportSlide(i, label) {
+  const s = state.slides[i];
+  if (s.media?.kind === 'video') {
+    if (!canRecord()) {
+      notify('이 브라우저는 영상 내보내기를 지원하지 않습니다 · 사진으로 저장했습니다');
+      return exportImage(i);
+    }
+    await exportVideo(i, p => { exportOneLabel.textContent = `${label} 녹화 ${Math.round(p * 100)}%`; });
+  } else {
+    await exportImage(i);
+  }
+}
+
+async function runExport(fn) {
+  if (busy || !state.slides.length) return;
+  busy = true;
+  pauseAllVideos(null);
+  btnOne.classList.add('opacity-60'); btnAll.classList.add('opacity-60');
+  try { await fn(); } finally {
+    busy = false;
+    btnOne.classList.remove('opacity-60'); btnAll.classList.remove('opacity-60');
+    syncExportLabel();
+    refreshAll();
+  }
+}
+
+btnOne.addEventListener('click', () => runExport(() => exportSlide(state.active, '현재 장')));
+btnAll.addEventListener('click', () => runExport(async () => {
+  for (let i = 0; i < state.slides.length; i++) {
+    exportAllLabel.textContent = `내보내는 중 ${i + 1}/${state.slides.length}`;
+    await exportSlide(i, `${i + 1}장`);
+    await new Promise(r => setTimeout(r, 350));
+  }
+}));
+
+/* ---------- keyboard ---------- */
+window.addEventListener('keydown', e => {
+  if (/INPUT|TEXTAREA/.test(e.target.tagName)) return;
+  if (e.key === 'ArrowLeft' && state.active > 0) { state.active--; state.sel = -1; refreshAll(); }
+  if (e.key === 'ArrowRight' && state.active < state.slides.length - 1) { state.active++; state.sel = -1; refreshAll(); }
+  // an overlay is selected → that goes first; otherwise the whole slide
+  if (e.key === 'Backspace' || e.key === 'Delete') {
+    e.preventDefault();
+    if (state.sel >= 0) document.getElementById('btnOverlayDel').click();
+    else deleteSlide();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
+});
+
+/* ---------- persist style ---------- */
+function save() { try { localStorage.setItem('carousel.style', JSON.stringify(style)); } catch (_) {} }
+try {
+  const raw = localStorage.getItem('carousel.style');
+  if (raw) Object.assign(style, JSON.parse(raw));
+} catch (_) {}
+
+/* ---------- persist the copy ----------
+   media lives on blob urls that die with the tab, so only the writing is kept.
+   reopening brings the text back as media-less slides, ready for the photos. */
+let docTimer = 0;
+function saveDoc() {
+  clearTimeout(docTimer);
+  docTimer = setTimeout(() => {
+    try {
+      const doc = state.slides.map(s => ({ l1: s.l1, l2: s.l2, tx: s.tx, ty: s.ty }));
+      if (doc.some(d => d.l1 || d.l2)) localStorage.setItem('carousel.doc', JSON.stringify(doc));
+      else localStorage.removeItem('carousel.doc');
+    } catch (_) {}
+  }, 400);
+}
+function loadDoc() {
+  try {
+    const doc = JSON.parse(localStorage.getItem('carousel.doc') || '[]');
+    if (!Array.isArray(doc) || !doc.length) return;
+    doc.forEach(d => {
+      const s = newSlide(null);
+      s.l1 = d.l1 || ''; s.l2 = d.l2 || ''; s.tx = d.tx || 0; s.ty = d.ty || 0;
+      state.slides.push(s);
+    });
+    notify(`저장해 둔 글 ${doc.length}장을 불러왔습니다 · 사진·영상을 넣어주세요`);
+  } catch (_) {}
+}
+
+syncers.forEach(fn => fn());
+document.getElementById('colorPick').value = style.color;
+loadDoc();
+refreshAll();
+document.fonts.ready.then(() => { requestRender(); requestStrip(); });
+</script>
+</body>
+</html>
