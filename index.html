@@ -4,7 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>carousel</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="carousel">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<!-- pinned: the bare url 302s, which a service worker cache refuses to store -->
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css">
 <style>
   html,body{height:100%}
@@ -427,9 +436,15 @@ function cur() { return state.slides[state.active] || null; }
 function selOverlay() { const s = cur(); return s && s.overlays[state.sel] ? s.overlays[state.sel] : null; }
 let uid = 0;
 
-function loadMedia(file) {
+/* bid = the key this file is stored under in IndexedDB. new files get a fresh
+   one; files coming back from storage keep theirs. */
+let bidSeq = 0;
+function newBid() { return `b${Date.now().toString(36)}-${(++bidSeq).toString(36)}`; }
+
+function loadMedia(file, bid = newBid()) {
   return new Promise(resolve => {
     const url = URL.createObjectURL(file);
+    const done = m => resolve(m && { ...m, blob: file, bid });
     if (file.type.startsWith('video/')) {
       const el = document.createElement('video');
       el.muted = true; el.playsInline = true; el.preload = 'auto'; el.loop = true;
@@ -447,7 +462,7 @@ function loadMedia(file) {
         if (!ok || !el.videoWidth) return resolve(null);
         // nudge off frame zero for a usable poster, but never block on it
         if (!el.currentTime) el.currentTime = Math.min(0.1, (el.duration || 1) / 10);
-        resolve({ kind: 'video', el, w: el.videoWidth, h: el.videoHeight });
+        done({ kind: 'video', el, w: el.videoWidth, h: el.videoHeight });
       };
       // metadata is enough to size the slide; waiting on a seek can hang forever
       el.addEventListener('loadedmetadata', () => finish(true), { once: true });
@@ -456,7 +471,7 @@ function loadMedia(file) {
       el.src = url;
     } else if (file.type.startsWith('image/')) {
       const el = new Image();
-      el.onload = () => resolve({ kind: 'image', el, w: el.naturalWidth, h: el.naturalHeight });
+      el.onload = () => done({ kind: 'image', el, w: el.naturalWidth, h: el.naturalHeight });
       el.onerror = () => resolve(null);
       el.src = url;
     } else resolve(null);
@@ -480,15 +495,18 @@ function putMedia(s, m) { s.media = m; s.zoom = 1; s.ox = 0; s.oy = 0; }
 async function addFiles(files) {
   const list = [...files].filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
   if (!list.length) return;
-  const loaded = await Promise.all(list.map(loadMedia));
+  // pass only the file — map's index argument would land in the bid parameter
+  const loaded = await Promise.all(list.map(f => loadMedia(f)));
   const failed = loaded.filter(m => !m).length;
   if (failed) notify(`${failed}개는 브라우저가 열지 못하는 형식이라 건너뛰었습니다`);
   const ok = loaded.filter(Boolean);
   if (!ok.length) return refreshAll();
 
   pushHistory();
+  keepStorage();
   let first = -1;
   for (const m of ok) {
+    await putBlob(m.bid, m.blob);
     const slot = state.slides.findIndex(s => !s.media);
     if (slot >= 0) putMedia(state.slides[slot], m);
     else state.slides.push(newSlide(m));
@@ -541,6 +559,8 @@ document.getElementById('replacePick').addEventListener('change', async e => {
   const m = await loadMedia(f);
   if (!m) return notify('브라우저가 열지 못하는 형식입니다');
   pushHistory();
+  keepStorage();
+  await putBlob(m.bid, m.blob);
   let s = cur();
   if (!s) { s = newSlide(null); state.slides.push(s); state.active = state.slides.length - 1; }
   putMedia(s, m);
@@ -551,11 +571,13 @@ document.getElementById('overlayPick').addEventListener('change', async e => {
   e.target.value = '';
   if (!s || !files.length) return;
   pushHistory();
+  keepStorage();
   for (const f of files) {
     const m = await loadMedia(f);
     if (!m || m.kind !== 'image') continue;
+    await putBlob(m.bid, m.blob);
     const w = W * 0.3;
-    s.overlays.push({ img: m.el, iw: m.w, ih: m.h, cx: W / 2, cy: H / 2, w, alpha: 1 });
+    s.overlays.push({ img: m.el, iw: m.w, ih: m.h, cx: W / 2, cy: H / 2, w, alpha: 1, bid: m.bid, blob: m.blob });
   }
   state.sel = s.overlays.length - 1;
   refreshAll();
@@ -1090,14 +1112,36 @@ function syncExportLabel() {
   exportAllLabel.textContent = short ? '전체' : '전체 내보내기';
 }
 
-async function exportImage(i) {
+async function slideFile(i) {
   const s = state.slides[i];
   await ensureFonts(s);
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
   draw(c.getContext('2d'), W, H, s, i, state.slides.length);
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
-  download(blob, `carousel-${String(i + 1).padStart(2, '0')}.png`);
+  return new File([blob], `carousel-${String(i + 1).padStart(2, '0')}.png`, { type: 'image/png' });
+}
+
+/* on a phone the share sheet reaches the photo library directly, which beats a
+   download that lands in Files. anywhere else — and whenever the sheet is
+   unavailable or refused — fall back to saving the file. */
+async function shareOrDownload(files) {
+  // on a desktop a download is the expected outcome; only phones get the sheet
+  const phone = mqPhone.matches || isTouch;
+  try {
+    if (phone && navigator.canShare?.({ files })) {
+      await navigator.share({ files });
+      return 'shared';
+    }
+  } catch (e) {
+    if (e?.name === 'AbortError') return 'cancelled';
+  }
+  files.forEach(f => download(f, f.name));
+  return 'downloaded';
+}
+
+async function exportImage(i) {
+  await shareOrDownload([await slideFile(i)]);
 }
 
 /* not every phone browser can record a canvas — check before promising a video */
@@ -1159,7 +1203,8 @@ async function exportVideo(i, onProgress) {
 
   m.el.loop = wasLoop; m.el.muted = wasMuted; m.el.currentTime = 0;
   const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
-  download(new Blob(chunks, { type: mime }), `carousel-${String(i + 1).padStart(2, '0')}.${ext}`);
+  const name = `carousel-${String(i + 1).padStart(2, '0')}.${ext}`;
+  await shareOrDownload([new File([new Blob(chunks, { type: mime })], name, { type: mime })]);
 }
 
 async function exportSlide(i, label) {
@@ -1190,8 +1235,22 @@ async function runExport(fn) {
 
 btnOne.addEventListener('click', () => runExport(() => exportSlide(state.active, '현재 장')));
 btnAll.addEventListener('click', () => runExport(async () => {
-  for (let i = 0; i < state.slides.length; i++) {
-    exportAllLabel.textContent = `내보내는 중 ${i + 1}/${state.slides.length}`;
+  const n = state.slides.length;
+  // an all-image deck goes out as one share sheet — N separate downloads is
+  // exactly the part that was annoying on a phone
+  if (!state.slides.some(s => s.media?.kind === 'video')) {
+    const files = [];
+    for (let i = 0; i < n; i++) {
+      exportAllLabel.textContent = `준비 중 ${i + 1}/${n}`;
+      files.push(await slideFile(i));
+    }
+    exportAllLabel.textContent = '저장하는 중';
+    const how = await shareOrDownload(files);
+    if (how === 'shared') notify(`${n}장을 보냈습니다`);
+    return;
+  }
+  for (let i = 0; i < n; i++) {
+    exportAllLabel.textContent = `내보내는 중 ${i + 1}/${n}`;
     await exportSlide(i, `${i + 1}장`);
     await new Promise(r => setTimeout(r, 350));
   }
@@ -1230,12 +1289,119 @@ function saveDoc() {
       if (doc.some(d => d.l1 || d.l2)) localStorage.setItem('carousel.doc', JSON.stringify(doc));
       else localStorage.removeItem('carousel.doc');
     } catch (_) {}
+    saveProject();
   }, 400);
 }
+/* ---------- the project itself (IndexedDB) ----------
+   localStorage can only take the text. photos and videos are blobs, so the whole
+   project goes here: a light record of the layout plus the files it points at.
+   that is what makes the deck survive closing the tab. */
+const DB_NAME = 'carousel-project';
+let dbPromise = null;
+function db() {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => {
+      const d = r.result;
+      if (!d.objectStoreNames.contains('blobs')) d.createObjectStore('blobs');
+      if (!d.objectStoreNames.contains('doc')) d.createObjectStore('doc');
+    };
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  }).catch(() => null);
+  return dbPromise;
+}
+function idb(store, mode, fn) {
+  return db().then(d => d && new Promise(res => {
+    let out;
+    const tx = d.transaction(store, mode);
+    const req = fn(tx.objectStore(store));
+    if (req) req.onsuccess = () => { out = req.result; };
+    tx.oncomplete = () => res(out === undefined ? true : out);
+    tx.onerror = tx.onabort = () => res(null);
+  })).catch(() => null);
+}
+
+/* ask the browser not to evict us when space runs low */
+let asked = false;
+function keepStorage() {
+  if (asked) return;
+  asked = true;
+  navigator.storage?.persist?.().catch(() => {});
+}
+
+let quotaWarned = false;
+async function putBlob(bid, blob) {
+  const ok = await idb('blobs', 'readwrite', st => st.put(blob, bid));
+  if (!ok && !quotaWarned) {
+    quotaWarned = true;
+    notify('사진·영상을 저장할 공간이 부족합니다 · 글과 설정만 저장됩니다');
+  }
+  return !!ok;
+}
+
+/* store every file the deck currently points at, then drop the orphans */
+async function saveProject() {
+  const used = new Map();   // bid -> blob, so a file can be written back if needed
+  const slides = state.slides.map(s => {
+    if (s.media?.bid) used.set(s.media.bid, s.media.blob);
+    s.overlays.forEach(o => o.bid && used.set(o.bid, o.blob));
+    return {
+      l1: s.l1, l2: s.l2, tx: s.tx, ty: s.ty, zoom: s.zoom, ox: s.ox, oy: s.oy,
+      bid: s.media?.bid || null,
+      overlays: s.overlays.map(o => ({ bid: o.bid || null, cx: o.cx, cy: o.cy, w: o.w, alpha: o.alpha ?? 1 }))
+    };
+  });
+  await idb('doc', 'readwrite', st => st.put({ slides, active: state.active, savedAt: Date.now() }, 'current'));
+
+  const keys = await idb('blobs', 'readonly', st => st.getAllKeys());
+  if (!Array.isArray(keys)) return;
+  const have = new Set(keys);
+
+  // undo can bring back a slide whose file was already collected — write it again
+  for (const [bid, blob] of used) {
+    if (!have.has(bid) && blob) await putBlob(bid, blob);
+  }
+  const dead = keys.filter(k => !used.has(k));
+  if (dead.length) await idb('blobs', 'readwrite', st => { dead.forEach(k => st.delete(k)); });
+}
+
+async function loadProject() {
+  const doc = await idb('doc', 'readonly', st => st.get('current'));
+  if (!doc?.slides?.length) return 0;
+  // decoding takes a moment; if the deck was touched meanwhile, leave it alone
+  if (state.slides.length) return 0;
+  let missing = 0;
+  for (const d of doc.slides) {
+    const s = newSlide(null);
+    s.l1 = d.l1 || ''; s.l2 = d.l2 || '';
+    s.tx = d.tx || 0; s.ty = d.ty || 0;
+    s.zoom = d.zoom || 1; s.ox = d.ox || 0; s.oy = d.oy || 0;
+    if (d.bid) {
+      const blob = await idb('blobs', 'readonly', st => st.get(d.bid));
+      if (blob) s.media = await loadMedia(blob, d.bid);
+      if (!s.media) missing++;
+    }
+    for (const o of d.overlays || []) {
+      const blob = o.bid && await idb('blobs', 'readonly', st => st.get(o.bid));
+      if (!blob) continue;
+      const m = await loadMedia(blob, o.bid);
+      if (m?.kind === 'image') s.overlays.push({ img: m.el, iw: m.w, ih: m.h, cx: o.cx, cy: o.cy, w: o.w, alpha: o.alpha, bid: o.bid, blob: m.blob });
+    }
+    state.slides.push(s);
+  }
+  state.active = clamp(doc.active || 0, 0, state.slides.length - 1);
+  notify(missing
+    ? `${state.slides.length}장을 불러왔습니다 · ${missing}장은 사진이 없어 다시 넣어주세요`
+    : `${state.slides.length}장을 불러왔습니다`);
+  return state.slides.length;
+}
+
 function loadDoc() {
   try {
     const doc = JSON.parse(localStorage.getItem('carousel.doc') || '[]');
-    if (!Array.isArray(doc) || !doc.length) return;
+    if (!Array.isArray(doc) || !doc.length || state.slides.length) return;
     doc.forEach(d => {
       const s = newSlide(null);
       s.l1 = d.l1 || ''; s.l2 = d.l2 || ''; s.tx = d.tx || 0; s.ty = d.ty || 0;
@@ -1247,9 +1413,20 @@ function loadDoc() {
 
 syncers.forEach(fn => fn());
 document.getElementById('colorPick').value = style.color;
-loadDoc();
 refreshAll();
 document.fonts.ready.then(() => { requestRender(); requestStrip(); });
+
+/* the project lives in IndexedDB; fall back to the old text-only copy */
+(async () => {
+  const restored = await loadProject();
+  if (!restored) loadDoc();
+  if (restored || state.slides.length) refreshAll();
+})();
+
+/* offline + home screen icon; harmless where it isn't supported */
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
 </script>
 </body>
 </html>
