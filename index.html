@@ -5,10 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>럭키마미 캐러셀 디자인</title>
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#0a0a0a">
+<meta name="theme-color" content="#ffffff">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="캐러셀">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -25,17 +25,17 @@
 <style>
   html,body{height:100%}
   body{font-family:"Pretendard Variable",Pretendard,-apple-system,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-  input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:rgba(255,255,255,.1);border-radius:9999px}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:9999px;background:#fafafa}
-  input[type=range]::-moz-range-thumb{width:10px;height:10px;border:0;border-radius:9999px;background:#fafafa}
+  input[type=range]{-webkit-appearance:none;appearance:none;height:2px;background:rgba(0,0,0,.12);border-radius:9999px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:10px;height:10px;border-radius:9999px;background:#404040}
+  input[type=range]::-moz-range-thumb{width:10px;height:10px;border:0;border-radius:9999px;background:#404040}
   input[type=color]{-webkit-appearance:none;appearance:none;border:0;background:transparent;padding:0}
   input[type=color]::-webkit-color-swatch-wrapper{padding:0}
-  input[type=color]::-webkit-color-swatch{border:1px solid rgba(255,255,255,.1);border-radius:9999px}
+  input[type=color]::-webkit-color-swatch{border:1px solid rgba(0,0,0,.15);border-radius:9999px}
   ::-webkit-scrollbar{width:10px;height:10px}
-  ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:9999px;border:3px solid transparent;background-clip:padding-box}
-  ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.28);background-clip:padding-box}
+  ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.16);border-radius:9999px;border:3px solid transparent;background-clip:padding-box}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,.30);background-clip:padding-box}
   ::-webkit-scrollbar-track{background:transparent}
-  .pane{overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+  .pane{overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:rgba(0,0,0,.22) transparent}
   .seg{height:28px}
   .off{display:none !important}
   /* the phone address bar makes 100vh lie; dvh follows the visible box */
@@ -51,37 +51,37 @@
   }
   @media (hover:none){
     /* no hover on touch, so the pressed state has to carry the feedback */
-    .seg:active{background:rgba(255,255,255,.14)}
+    .seg:active{background:rgba(0,0,0,.10)}
   }
-  .cbx input:checked + .box{background:rgba(255,255,255,.10)}
-  .cbx input:checked + .box svg{opacity:1;color:#fff}
+  .cbx input:checked + .box{background:rgba(0,0,0,.10)}
+  .cbx input:checked + .box svg{opacity:1;color:#171717}
 </style>
 </head>
-<body class="bg-neutral-950 text-neutral-50 text-xs font-normal antialiased overflow-hidden">
+<body class="bg-white text-neutral-900 text-xs font-normal antialiased overflow-hidden">
 <div id="app" class="flex flex-col">
 
   <!-- top bar -->
-  <header class="border-b border-white/10 shrink-0">
+  <header class="border-b border-neutral-200 shrink-0">
     <div class="flex items-center justify-between h-12 lg:h-14 gap-2">
       <div class="flex items-center gap-2.5 pl-3 lg:pl-4 min-w-0">
-        <button id="btnSheetLeft" class="lg:hidden size-7 shrink-0 grid place-items-center rounded-full hover:bg-white/10" data-ic="bars3" data-tone="icon" title="파일"></button>
-        <div class="size-7 shrink-0 rounded-md bg-brand-400/15 grid place-items-center">
-          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-brand-400"><path d="M3 4.75A1.75 1.75 0 0 1 4.75 3h6.5A1.75 1.75 0 0 1 13 4.75v6.5A1.75 1.75 0 0 1 11.25 13h-6.5A1.75 1.75 0 0 1 3 11.25v-6.5Zm1.5 0v6.5c0 .138.112.25.25.25h6.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25Z"/></svg>
+        <button id="btnSheetLeft" class="lg:hidden size-7 shrink-0 grid place-items-center rounded-full hover:bg-neutral-200" data-ic="bars3" data-tone="icon" title="파일"></button>
+        <div class="size-7 shrink-0 rounded-md bg-brand-400/20 grid place-items-center">
+          <svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-brand-600"><path d="M3 4.75A1.75 1.75 0 0 1 4.75 3h6.5A1.75 1.75 0 0 1 13 4.75v6.5A1.75 1.75 0 0 1 11.25 13h-6.5A1.75 1.75 0 0 1 3 11.25v-6.5Zm1.5 0v6.5c0 .138.112.25.25.25h6.5a.25.25 0 0 0 .25-.25v-6.5a.25.25 0 0 0-.25-.25h-6.5a.25.25 0 0 0-.25.25Z"/></svg>
         </div>
         <div class="min-w-0">
-          <p class="text-neutral-50 truncate leading-4">럭키마미 캐러셀 디자인</p>
-          <p id="subTitle" class="text-neutral-500 text-[11px] truncate leading-4"></p>
+          <p class="text-neutral-900 truncate leading-4">럭키마미 캐러셀 디자인</p>
+          <p id="subTitle" class="text-neutral-9000 text-[11px] truncate leading-4"></p>
         </div>
-        <span id="notice" class="text-amber-300 truncate hidden lg:inline pl-2"></span>
+        <span id="notice" class="text-amber-600 truncate hidden lg:inline pl-2"></span>
       </div>
       <div class="flex items-center gap-1 pr-3 lg:pr-4 shrink-0">
-        <button id="btnUndo" class="seg px-2 rounded-full hover:bg-white/10 text-neutral-400 disabled:opacity-30" data-ic="undo" data-tone="icon" title="뒤로가기 ⌘Z"></button>
-        <button id="btnRedo" class="seg px-2 rounded-full hover:bg-white/10 text-neutral-400 disabled:opacity-30" data-ic="redo" data-tone="icon" title="다시 ⇧⌘Z"></button>
-        <span class="w-px h-4 bg-white/10 mx-1"></span>
-        <button id="btnPreview" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-white/5 hover:bg-white/10">
+        <button id="btnUndo" class="seg px-2 rounded-full hover:bg-neutral-200 text-neutral-600 disabled:opacity-30" data-ic="undo" data-tone="icon" title="뒤로가기 ⌘Z"></button>
+        <button id="btnRedo" class="seg px-2 rounded-full hover:bg-neutral-200 text-neutral-600 disabled:opacity-30" data-ic="redo" data-tone="icon" title="다시 ⇧⌘Z"></button>
+        <span class="w-px h-4 bg-neutral-200 mx-1"></span>
+        <button id="btnPreview" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-neutral-100 hover:bg-neutral-200">
           <span data-ic="play" data-tone="icon"></span><span class="hidden sm:inline">미리보기</span>
         </button>
-        <button id="btnDownload" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-white/10 hover:bg-white/20">
+        <button id="btnDownload" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-neutral-200 hover:bg-neutral-300">
           <span data-ic="download" data-tone="icon"></span><span id="dlLabel">다운로드</span>
         </button>
       </div>
@@ -92,10 +92,10 @@
   <div class="flex-1 flex min-h-0">
 
     <!-- left icon rail -->
-    <nav id="rail" class="hidden lg:flex flex-col w-12 shrink-0 border-r border-white/10 pt-2 gap-1 items-center"></nav>
+    <nav id="rail" class="hidden lg:flex flex-col w-12 shrink-0 border-r border-neutral-200 pt-2 gap-1 items-center"></nav>
 
     <!-- left panel -->
-    <aside id="leftPane" class="hidden lg:block w-[248px] shrink-0 border-r border-white/10 pane"></aside>
+    <aside id="leftPane" class="hidden lg:block w-[248px] shrink-0 border-r border-neutral-200 pane"></aside>
 
     <!-- stage -->
     <section class="flex-1 flex flex-col min-w-0 min-h-0">
@@ -103,70 +103,70 @@
         <canvas id="view" class="absolute inset-0 w-full h-full block select-none"></canvas>
 
         <div id="viewBar" class="absolute top-3 left-3 flex items-center gap-1.5 pointer-events-auto">
-          <div class="inline-flex seg items-center rounded-full bg-white/5" id="viewToggle"></div>
-          <div class="inline-flex seg items-center rounded-full bg-white/5">
-            <button id="btnZoomOut" class="size-7 grid place-items-center rounded-full hover:bg-white/10" data-ic="minus" data-tone="icon"></button>
-            <button id="btnFit" class="px-2 h-7 rounded-full hover:bg-white/10 font-mono text-[11px] text-neutral-400">100%</button>
-            <button id="btnZoomIn" class="size-7 grid place-items-center rounded-full hover:bg-white/10" data-ic="plus" data-tone="icon"></button>
+          <div class="inline-flex seg items-center rounded-full bg-neutral-100" id="viewToggle"></div>
+          <div class="inline-flex seg items-center rounded-full bg-neutral-100">
+            <button id="btnZoomOut" class="size-7 grid place-items-center rounded-full hover:bg-neutral-200" data-ic="minus" data-tone="icon"></button>
+            <button id="btnFit" class="px-2 h-7 rounded-full hover:bg-neutral-200 font-mono text-[11px] text-neutral-600">100%</button>
+            <button id="btnZoomIn" class="size-7 grid place-items-center rounded-full hover:bg-neutral-200" data-ic="plus" data-tone="icon"></button>
           </div>
         </div>
 
         <div id="empty" class="absolute inset-0 grid place-items-center pointer-events-none">
           <div class="text-center">
-            <p class="text-neutral-400">사진 · 영상을 끌어다 놓거나 붙여넣기 (⌘V)</p>
-            <p class="text-neutral-500 mt-1 text-[11px]">빈 장으로 글부터 써도 됩니다 · 3:4 · 1080 × 1440</p>
+            <p class="text-neutral-600">사진 · 영상을 끌어다 놓거나 붙여넣기 (⌘V)</p>
+            <p class="text-neutral-9000 mt-1 text-[11px]">빈 장으로 글부터 써도 됩니다 · 3:4 · 1080 × 1440</p>
           </div>
         </div>
         <div id="dropHint" class="absolute inset-3 rounded border border-brand-400/40 bg-brand-400/5 hidden pointer-events-none"></div>
       </div>
 
       <!-- card strip -->
-      <div class="border-t border-white/10 shrink-0">
+      <div class="border-t border-neutral-200 shrink-0">
         <div id="strip" class="flex items-stretch gap-2 px-3 py-2.5 overflow-x-auto"></div>
       </div>
 
       <!-- block toolbar -->
-      <div class="border-t border-white/10 shrink-0">
+      <div class="border-t border-neutral-200 shrink-0">
         <div id="toolbar" class="flex items-stretch overflow-x-auto"></div>
       </div>
     </section>
 
     <!-- right property panel -->
-    <aside id="propPane" class="hidden lg:block w-[292px] shrink-0 border-l border-white/10 pane"></aside>
+    <aside id="propPane" class="hidden lg:block w-[292px] shrink-0 border-l border-neutral-200 pane"></aside>
   </div>
 
   <!-- phone: property sheet + tabs -->
-  <div id="sheet" class="lg:hidden shrink-0 border-t border-white/10 off">
+  <div id="sheet" class="lg:hidden shrink-0 border-t border-neutral-200 off">
     <div id="sheetBody" class="pane max-h-[44vh]"></div>
   </div>
-  <nav id="mtabs" class="lg:hidden shrink-0 border-t border-white/10 flex items-stretch" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
+  <nav id="mtabs" class="lg:hidden shrink-0 border-t border-neutral-200 flex items-stretch" style="padding-bottom:env(safe-area-inset-bottom)"></nav>
 </div>
 
 <!-- font picker popover -->
-<div id="faceMenu" class="fixed z-40 hidden w-[228px] max-h-[52vh] pane rounded-xl bg-neutral-900 border border-white/10 py-1 shadow-2xl"></div>
+<div id="faceMenu" class="fixed z-40 hidden w-[228px] max-h-[52vh] pane rounded-xl bg-white border border-neutral-200 py-1 shadow-2xl"></div>
 
 <!-- ask() dialog: the browser's own prompt/confirm are blocked on a phone and by automation -->
 <div id="dlg" class="fixed inset-0 z-50 hidden">
-  <div class="absolute inset-0 bg-neutral-950/70" data-dlg-cancel></div>
-  <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-[380px] rounded-xl bg-neutral-900 border border-white/10 p-4">
-    <p id="dlgTitle" class="text-neutral-50 mb-1"></p>
-    <p id="dlgNote" class="text-neutral-500 text-[11px] mb-3"></p>
-    <input id="dlgInput" class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 off">
-    <textarea id="dlgArea" rows="8" class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 resize-none off"></textarea>
+  <div class="absolute inset-0 bg-white/30" data-dlg-cancel></div>
+  <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-[380px] rounded-xl bg-white border border-neutral-200 shadow-xl p-4">
+    <p id="dlgTitle" class="text-neutral-900 mb-1"></p>
+    <p id="dlgNote" class="text-neutral-9000 text-[11px] mb-3"></p>
+    <input id="dlgInput" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 off">
+    <textarea id="dlgArea" rows="8" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 resize-none off"></textarea>
     <div class="flex items-center justify-end gap-1.5 mt-3">
-      <button id="dlgCancel" class="seg px-3 rounded-full bg-white/5 hover:bg-white/10 text-neutral-400">취소</button>
-      <button id="dlgOk" class="seg px-4 rounded-full bg-white/10 hover:bg-white/20">확인</button>
+      <button id="dlgCancel" class="seg px-3 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600">취소</button>
+      <button id="dlgOk" class="seg px-4 rounded-full bg-neutral-200 hover:bg-neutral-300">확인</button>
     </div>
   </div>
 </div>
 
 <!-- phone: the left rail has nowhere to live, so it comes in as a sheet -->
 <div id="leftSheet" class="lg:hidden fixed inset-0 z-40 hidden">
-  <div class="absolute inset-0 bg-neutral-950/70" data-left-close></div>
-  <div class="absolute inset-y-0 left-0 w-[86%] max-w-[320px] bg-neutral-900 border-r border-white/10 flex flex-col">
-    <div class="flex items-center justify-between h-12 px-3 border-b border-white/10 shrink-0">
+  <div class="absolute inset-0 bg-white/30" data-left-close></div>
+  <div class="absolute inset-y-0 left-0 w-[86%] max-w-[320px] bg-white border-r border-neutral-200 shadow-xl flex flex-col">
+    <div class="flex items-center justify-between h-12 px-3 border-b border-neutral-200 shrink-0">
       <div id="leftSheetTabs" class="flex items-center gap-1 overflow-x-auto"></div>
-      <button class="size-7 shrink-0 grid place-items-center rounded-full hover:bg-white/10" data-ic="xmark" data-tone="icon" data-left-close></button>
+      <button class="size-7 shrink-0 grid place-items-center rounded-full hover:bg-neutral-200" data-ic="xmark" data-tone="icon" data-left-close></button>
     </div>
     <div id="leftSheetBody" class="pane flex-1"></div>
   </div>
@@ -222,7 +222,7 @@ const ICON = {
   drop:'M8 1.75c.2 0 .39.08.53.23 1.2 1.24 3.72 4.12 3.72 6.52a4.25 4.25 0 0 1-8.5 0c0-2.4 2.52-5.28 3.72-6.52A.75.75 0 0 1 8 1.75Z',
 };
 function ic(name, tone = 'icon') {
-  const cls = tone === 'active' ? 'text-white' : tone === 'muted' ? 'text-neutral-400' : 'text-neutral-500';
+  const cls = tone === 'active' ? 'text-neutral-900' : tone === 'muted' ? 'text-neutral-500' : 'text-neutral-400';
   return `<svg viewBox="0 0 16 16" fill="currentColor" class="size-4 shrink-0 ${cls}"><path d="${ICON[name] || ''}"/></svg>`;
 }
 /* markup can ask for an icon declaratively; this fills them in once at boot */
@@ -335,6 +335,7 @@ const DEFAULT_STYLE = {
   align: 'left', titleWeight: 500, subWeight: 400,
   titleFace: 'pre-m', subFace: 'pre-r',
   color: '#ffffff', subOpacity: 90, padX: 72, padBottom: 110,
+  cardBg: '#0a0a0a',
   gradOn: true, gradDir: 'bottom', darken: 45, fill: 0,
   animText: 'fade', animMedia: 'none',
   showPageNum: false, showSafe: false, showLabels: true, showCenter: true,
@@ -345,6 +346,13 @@ const DEFAULT_STYLE = {
   enterSplits: true, singleView: true,
 };
 const SWATCHES = ['#000000', '#ffffff', '#feefc5', '#2e3d86', '#8FAF9D'];
+/* is this colour light enough that guides drawn on it have to go dark? */
+function isLight(hex) {
+  const h = String(hex).replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  if (!isFinite(n)) return false;
+  return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) > 150;
+}
 
 const style = { ...DEFAULT_STYLE };
 const state = {
@@ -401,7 +409,7 @@ let toastEl = 0, toastTimer = 0;
 function toast(msg) {
   if (!toastEl) {
     toastEl = document.createElement('div');
-    toastEl.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 z-40 px-3 py-2 rounded-full bg-neutral-900 border border-white/10 text-amber-300 text-[11px] max-w-[86vw] text-center';
+    toastEl.className = 'fixed left-1/2 -translate-x-1/2 bottom-28 z-40 px-3 py-2 rounded-full bg-white border border-neutral-200 shadow-lg text-amber-600 text-[11px] max-w-[86vw] text-center';
     document.body.appendChild(toastEl);
   }
   toastEl.textContent = msg;
@@ -941,7 +949,7 @@ function drawCard(ctx, w, h, c, idx, total, anim) {
 
   ctx.save();
   ctx.imageSmoothingQuality = 'high';
-  ctx.fillStyle = '#0a0a0a';
+  ctx.fillStyle = style.cardBg || '#0a0a0a';
   ctx.fillRect(0, 0, w, h);
 
   /* background */
@@ -1186,15 +1194,17 @@ function renderView() {
     ctx.translate(p.x, p.y);
     hit[i] = drawCard(ctx, sw, sh, state.cards[i], i, state.cards.length, i === state.active ? anim : null);
     ctx.restore();
-    /* a hairline instead of a card: the frame is a line, never a panel */
-    ctx.strokeStyle = i === state.active ? 'rgba(255,255,255,.22)' : 'rgba(255,255,255,.10)';
+    /* a hairline instead of a card: the frame is a line, never a panel.
+       this one is drawn on the page, so it is dark — the guides further down
+       are drawn over the artwork and stay light. */
+    ctx.strokeStyle = i === state.active ? 'rgba(0,0,0,.32)' : 'rgba(0,0,0,.14)';
     ctx.lineWidth = 1;
     ctx.strokeRect(p.x + .5, p.y + .5, sw - 1, sh - 1);
 
     if (style.showLabels && !style.singleView) {
       ctx.font = '400 11px "Pretendard Variable", sans-serif';
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = i === state.active ? '#fafafa' : '#737373';
+      ctx.fillStyle = i === state.active ? '#171717' : '#a3a3a3';
       ctx.fillText(state.cards[i].name || `카드 ${i + 1}`, p.x, p.y - 8);
     }
   }
@@ -1238,6 +1248,10 @@ function drawChrome(ctx) {
   const base = cardRect(i), vk = state.view.k;
   const S = (x, y) => toScreen(base.x + x, base.y + y);
 
+  /* these are drawn over the card, so they follow the card's own background —
+     a light card needs dark guides even while the page is white */
+  const overLight = !c.media && isLight(style.cardBg);
+  const guide = overLight ? 'rgba(0,0,0,.14)' : 'rgba(255,255,255,.10)';
   ctx.save();
   if (style.showSafe) {
     ctx.strokeStyle = 'rgba(143,175,157,.35)';
@@ -1246,7 +1260,7 @@ function drawChrome(ctx) {
     ctx.strokeRect(a.x + .5, a.y + .5, b2.x - a.x, b2.y - a.y);
   }
   if (style.showCenter) {
-    ctx.strokeStyle = 'rgba(255,255,255,.10)';
+    ctx.strokeStyle = guide;
     ctx.lineWidth = 1;
     const m = S(W / 2, 0), m2 = S(W / 2, H), n = S(0, H / 2), n2 = S(W, H / 2);
     ctx.beginPath(); ctx.moveTo(m.x + .5, m.y); ctx.lineTo(m2.x + .5, m2.y);
@@ -1255,7 +1269,7 @@ function drawChrome(ctx) {
   /* a card with no photo says so with a dashed inset */
   if (!c.media) {
     const a = S(24, 24), b2 = S(W - 24, H - 24);
-    ctx.strokeStyle = 'rgba(255,255,255,.10)';
+    ctx.strokeStyle = overLight ? 'rgba(0,0,0,.16)' : 'rgba(255,255,255,.10)';
     ctx.lineWidth = 1.5; ctx.setLineDash([10, 9]);
     ctx.strokeRect(a.x, a.y, b2.x - a.x, b2.y - a.y);
     ctx.setLineDash([]);
@@ -1272,7 +1286,7 @@ function drawChrome(ctx) {
     for (const p of g.grips) {
       const s = S(p.x, p.y);
       ctx.fillRect(Math.round(s.x - HANDLE / 2), Math.round(s.y - HANDLE / 2), HANDLE, HANDLE);
-      ctx.strokeStyle = 'rgba(10,10,10,.55)';
+      ctx.strokeStyle = 'rgba(10,10,10,.75)';
       ctx.strokeRect(Math.round(s.x - HANDLE / 2) + .5, Math.round(s.y - HANDLE / 2) + .5, HANDLE - 1, HANDLE - 1);
     }
   } else if (state.sel.kind === 'text' && h.fixed) {
@@ -1505,7 +1519,7 @@ function renderStrip() {
   const tw = (isTouch || mqPhone.matches) ? 54 : 48, th = Math.round(tw * H / W);
   state.cards.forEach((c, i) => {
     const btn = document.createElement('button');
-    btn.className = `relative shrink-0 rounded overflow-hidden ${i === state.active ? 'ring-1 ring-white/40' : 'ring-1 ring-white/10 opacity-60 hover:opacity-100'}`;
+    btn.className = `relative shrink-0 rounded overflow-hidden ${i === state.active ? 'ring-1 ring-neutral-400' : 'ring-1 ring-neutral-200 opacity-60 hover:opacity-100'}`;
     const cv = document.createElement('canvas');
     cv.width = 108; cv.height = 144;
     cv.style.display = 'block'; cv.style.width = tw + 'px'; cv.style.height = th + 'px';
@@ -1518,21 +1532,21 @@ function renderStrip() {
     });
     if (!c.pick) {
       const off = document.createElement('span');
-      off.className = 'absolute inset-0 bg-neutral-950/60';
+      off.className = 'absolute inset-0 bg-white/60';
       btn.appendChild(off);
     }
     const tag = c.media?.kind === 'video' ? '영상' : !c.media ? '글' : '';
     if (tag) {
       const s = document.createElement('span');
-      s.className = 'absolute top-1 left-1 px-1 rounded-full bg-white/10 text-[9px] text-neutral-50';
+      s.className = 'absolute top-1 left-1 px-1 rounded-full bg-neutral-200 text-[9px] text-neutral-900';
       s.textContent = tag;
       btn.appendChild(s);
     }
     if (i === state.active && state.cards.length > 1) {
       const nav = document.createElement('div');
-      nav.className = 'absolute inset-x-0 bottom-0 flex justify-between bg-neutral-950/70';
-      nav.innerHTML = `<span data-m="-1" class="px-1.5 py-0.5 text-neutral-400 hover:text-neutral-50 cursor-pointer">‹</span>
-        <span data-m="1" class="px-1.5 py-0.5 text-neutral-400 hover:text-neutral-50 cursor-pointer">›</span>`;
+      nav.className = 'absolute inset-x-0 bottom-0 flex justify-between bg-white/30';
+      nav.innerHTML = `<span data-m="-1" class="px-1.5 py-0.5 text-neutral-600 hover:text-neutral-900 cursor-pointer">‹</span>
+        <span data-m="1" class="px-1.5 py-0.5 text-neutral-600 hover:text-neutral-900 cursor-pointer">›</span>`;
       nav.addEventListener('click', e => {
         const m = e.target.dataset.m; if (!m) return;
         e.stopPropagation();
@@ -1543,7 +1557,7 @@ function renderStrip() {
     strip.appendChild(btn);
   });
   const add = document.createElement('button');
-  add.className = 'shrink-0 rounded grid place-items-center bg-white/5 hover:bg-white/10';
+  add.className = 'shrink-0 rounded grid place-items-center bg-neutral-100 hover:bg-neutral-200';
   add.style.width = tw + 'px'; add.style.height = th + 'px';
   add.innerHTML = ic('plus');
   add.addEventListener('click', addBlank);
@@ -1581,8 +1595,8 @@ function hSlider(id) {
   const v = c.get();
   return `<div class="mt-3 first:mt-0">
     <div class="flex items-center justify-between mb-1.5">
-      <span class="text-neutral-500">${esc(c.label)}</span>
-      <span class="font-mono text-[11px] text-neutral-400" data-out="${id}">${fmtVal(c, v)}</span>
+      <span class="text-neutral-9000">${esc(c.label)}</span>
+      <span class="font-mono text-[11px] text-neutral-600" data-out="${id}">${fmtVal(c, v)}</span>
     </div>
     <input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${v}" data-ctl="${id}" class="w-full">
   </div>`;
@@ -1592,35 +1606,35 @@ const fmtVal = (c, v) => (Math.round(v * 100) / 100) + c.unit;
 function hSeg(id, cls = '') {
   const s = SEG[id]; if (!s) return '';
   const v = String(s.get());
-  return `<div class="inline-flex seg items-center rounded-full bg-white/5 ${cls}">` + s.opts.map(([val, lab]) => {
+  return `<div class="inline-flex seg items-center rounded-full bg-neutral-100 ${cls}">` + s.opts.map(([val, lab]) => {
     const on = String(val) === v;
-    return `<button data-seg="${id}" data-val="${esc(val)}" class="seg px-2.5 rounded-full whitespace-nowrap ${on ? 'bg-white/10 text-neutral-50' : 'text-neutral-500 hover:text-neutral-400'}">${lab}</button>`;
+    return `<button data-seg="${id}" data-val="${esc(val)}" class="seg px-2.5 rounded-full whitespace-nowrap ${on ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000 hover:text-neutral-600'}">${lab}</button>`;
   }).join('') + '</div>';
 }
 function hRow(label, right) {
-  return `<div class="flex items-center justify-between gap-2 mt-3 first:mt-0"><span class="text-neutral-500 shrink-0">${esc(label)}</span>${right}</div>`;
+  return `<div class="flex items-center justify-between gap-2 mt-3 first:mt-0"><span class="text-neutral-9000 shrink-0">${esc(label)}</span>${right}</div>`;
 }
 function hSwitch(id, label) {
   const s = SEG[id];
   const on = bool(s.get());
-  return hRow(label, `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="seg px-3 rounded-full ${on ? 'bg-white/10 text-neutral-50' : 'bg-white/5 text-neutral-500'}">${on ? '켜기' : '끄기'}</button>`);
+  return hRow(label, `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="seg px-3 rounded-full ${on ? 'bg-neutral-200 text-neutral-900' : 'bg-neutral-100 text-neutral-9000'}">${on ? '켜기' : '끄기'}</button>`);
 }
 function hSection(title, body, extra = '') {
-  return `<div class="border-t border-white/10 first:border-t-0 px-4 py-4">
-    ${title ? `<div class="flex items-center justify-between mb-3"><p class="text-neutral-400">${esc(title)}</p>${extra}</div>` : ''}
+  return `<div class="border-t border-neutral-200 first:border-t-0 px-4 py-4">
+    ${title ? `<div class="flex items-center justify-between mb-3"><p class="text-neutral-600">${esc(title)}</p>${extra}</div>` : ''}
     ${body}</div>`;
 }
-function hBtn(id, label, cls = 'bg-white/5 hover:bg-white/10', icon = '') {
+function hBtn(id, label, cls = 'bg-neutral-100 hover:bg-neutral-200', icon = '') {
   return `<button data-act="${id}" class="seg inline-flex items-center justify-center gap-1.5 px-3 rounded-full ${cls}">${icon ? ic(icon) : ''}${esc(label)}</button>`;
 }
 function hSwatches(id, current) {
   return `<div class="flex items-center gap-1.5">` + SWATCHES.map(s =>
-    `<button data-act="${id}" data-color="${s}" class="size-5 rounded-full ring-1 ${String(current).toLowerCase() === s.toLowerCase() ? 'ring-brand-400' : 'ring-white/15'}" style="background:${s}"></button>`).join('') +
+    `<button data-act="${id}" data-color="${s}" class="size-5 rounded-full ring-1 ${String(current).toLowerCase() === s.toLowerCase() ? 'ring-brand-400' : 'ring-neutral-300'}" style="background:${s}"></button>`).join('') +
     `<input type="color" data-ctl="${id}" value="${current || '#ffffff'}" class="size-5 rounded-full overflow-hidden cursor-pointer"></div>`;
 }
 function hFace(id, key, label) {
   const f = faceOf(key);
-  return hRow(label, `<button data-face="${id}" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-white/5 hover:bg-white/10 min-w-0">
+  return hRow(label, `<button data-face="${id}" class="seg inline-flex items-center gap-1.5 px-3 rounded-full bg-neutral-100 hover:bg-neutral-200 min-w-0">
     <span class="truncate" style="font-family:'${esc(f.family)}','Pretendard Variable',sans-serif">${esc(f.name)}</span>${ic('chevronDown')}</button>`);
 }
 
@@ -1671,9 +1685,9 @@ function openFaceMenu(anchor, id) {
   const cur0 = target?.get();
   menu.innerHTML = FACE_GROUPS.map(g => {
     const items = Object.entries(FACES).filter(([, f]) => f.group === g);
-    return `<p class="px-3 pt-2 pb-1 text-neutral-500 text-[11px]">${g}</p>` + items.map(([k, f]) =>
-      `<button data-pick="${k}" class="w-full text-left px-3 py-2 hover:bg-white/10 flex items-center justify-between gap-2 ${k === cur0 ? 'bg-white/5' : ''}">
-        <span class="truncate text-neutral-50" style="font-family:'${esc(f.family)}','Pretendard Variable',sans-serif">${esc(f.name)}</span>
+    return `<p class="px-3 pt-2 pb-1 text-neutral-9000 text-[11px]">${g}</p>` + items.map(([k, f]) =>
+      `<button data-pick="${k}" class="w-full text-left px-3 py-2 hover:bg-neutral-200 flex items-center justify-between gap-2 ${k === cur0 ? 'bg-neutral-100' : ''}">
+        <span class="truncate text-neutral-900" style="font-family:'${esc(f.family)}','Pretendard Variable',sans-serif">${esc(f.name)}</span>
         ${k === cur0 ? ic('check', 'active') : ''}</button>`).join('');
   }).join('');
   const r = anchor.getBoundingClientRect();
@@ -1761,6 +1775,7 @@ defSeg('hideTitle', [], () => !cur()?.hidden.title, v => { const c = cur(); if (
 defSeg('hideSub', [], () => !cur()?.hidden.sub, v => { const c = cur(); if (c) c.hidden.sub = !v; }, bool);
 
 bindColor('color', () => style.color, v => { style.color = v; });
+bindColor('cardBg', () => style.cardBg, v => { style.cardBg = v; });
 bindColor('shadowColor', () => style.shadowColor, v => { style.shadowColor = v; });
 bindColor('boxColor', () => selBox()?.color || style.color, v => { const t = selBox(); if (t) t.color = v; });
 bindColor('charColor', () => '#ffffff', v => applyCharFmt({ c: v }));
@@ -1890,8 +1905,8 @@ defAct('tab', el => {
 function propHead() {
   if (mqPhone.matches) return '';      /* the bottom tab bar already is this */
   const t = propTab();
-  return `<div class="border-b border-white/10 px-3 py-2.5 flex gap-1 sticky top-0 bg-neutral-950 z-10">` +
-    PROP_TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="seg flex-1 rounded-full ${k === t ? 'bg-white/10 text-neutral-50' : 'text-neutral-500 hover:bg-white/5'}">${l}</button>`).join('') + '</div>';
+  return `<div class="border-b border-neutral-200 px-3 py-2.5 flex gap-1 sticky top-0 bg-white z-10">` +
+    PROP_TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="seg flex-1 rounded-full ${k === t ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000 hover:bg-neutral-100'}">${l}</button>`).join('') + '</div>';
 }
 
 function docPanel() {
@@ -1912,10 +1927,12 @@ function docPanel() {
     hSlider('padX') + hSlider('padBottom') + hSlider('textW') +
     `<div class="flex gap-1.5 mt-3">${hBtn('fitTextW', '여백에 맞추기')}${hBtn('resetTextPos', '위치 초기화')}</div>` +
     hSwitch('textShared', '모든 장 같은 자리')) +
-  hSection('배경 어둡게',
+  hSection('카드 배경',
+    hRow('색', hSwatches('cardBg', style.cardBg)) +
     hSwitch('gradOn', '그라데이션') +
     (style.gradOn ? hRow('방향', hSeg('gradDir')) + hSlider('darken') : '') +
-    hSlider('fill')) +
+    hSlider('fill') +
+    `<p class="text-neutral-500 mt-3 text-[11px]">사진이 없는 장에 보이는 색입니다 · 글씨 색도 같이 맞춰주세요</p>`) +
   hSection('표시',
     hSwitch('showPageNum', '페이지 번호') +
     hSwitch('showSafe', '안전영역') +
@@ -1926,48 +1943,49 @@ function docPanel() {
 
 function framePanel() {
   const c = cur();
-  if (!c) return hSection('', `<p class="text-neutral-500">장을 먼저 만들어주세요</p>`);
+  if (!c) return hSection('', `<p class="text-neutral-9000">장을 먼저 만들어주세요</p>`);
   const o = selOv();
   const v = c.media?.kind === 'video' ? c.media.el : null;
   return hSection('이 장',
-    `<input data-name class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs outline-none focus:bg-white/10 placeholder:text-neutral-500" placeholder="카드 ${state.active + 1}" value="${esc(c.name)}">` +
-    `<div class="flex gap-1.5 mt-3">${hBtn('dupCard', '복제', 'bg-white/5 hover:bg-white/10', 'copy')}${hBtn('delCard', '삭제', 'bg-white/5 hover:bg-white/10 text-neutral-400', 'trash')}</div>` +
+    `<input data-name class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs outline-none focus:bg-neutral-200 placeholder:text-neutral-600" placeholder="카드 ${state.active + 1}" value="${esc(c.name)}">` +
+    `<div class="flex gap-1.5 mt-3">${hBtn('dupCard', '복제', 'bg-neutral-100 hover:bg-neutral-200', 'copy')}${hBtn('delCard', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>` +
     hSwitch('cardPick', '내보내기에 포함')) +
   hSection('배경',
-    `<div class="flex gap-1.5">${hBtn('pickBg', c.media ? '바꾸기' : '사진 · 영상 넣기', 'bg-white/5 hover:bg-white/10 flex-1')}${c.media ? hBtn('resetBg', '맞춤 초기화') : ''}</div>` +
+    `<div class="flex gap-1.5">${hBtn('pickBg', c.media ? '바꾸기' : '사진 · 영상 넣기', 'bg-neutral-100 hover:bg-neutral-200 flex-1')}${c.media ? hBtn('resetBg', '맞춤 초기화') : ''}</div>` +
     (c.media ? hSlider('zoom') + hSwitch('hideMedia', '배경 보이기') : '') +
-    (v ? `<div class="flex items-center gap-1.5 mt-3">${hBtn('vPlay', v.paused ? '재생' : '일시정지', 'bg-white/5 hover:bg-white/10 flex-1')}${hBtn('vLoop', '반복', v.loop ? 'bg-white/10' : 'bg-white/5 text-neutral-500')}${hBtn('vMute', v.muted ? '음소거' : '소리', v.muted ? 'bg-white/5 text-neutral-500' : 'bg-white/10')}</div>` : '') +
-    (c.media ? '' : `<p class="text-neutral-500 mt-3 text-[11px]">글만 있는 장입니다</p>`)) +
+    (v ? `<div class="flex items-center gap-1.5 mt-3">${hBtn('vPlay', v.paused ? '재생' : '일시정지', 'bg-neutral-100 hover:bg-neutral-200 flex-1')}${hBtn('vLoop', '반복', v.loop ? 'bg-neutral-200' : 'bg-neutral-100 text-neutral-9000')}${hBtn('vMute', v.muted ? '음소거' : '소리', v.muted ? 'bg-neutral-100 text-neutral-9000' : 'bg-neutral-200')}</div>` : '') +
+    (c.media ? '' : `<p class="text-neutral-9000 mt-3 text-[11px]">글만 있는 장입니다</p>`)) +
   hSection('꾸밈', overlayList(c) +
     (o ? hSlider('ovSize') + hSlider('ovAlpha') + hSlider('ovRot') +
-      `<div class="flex gap-1.5 mt-3">${hBtn('ovAll', '모든 장에')}${hBtn('ovDel', '삭제', 'bg-white/5 hover:bg-white/10 text-neutral-400')}</div>` : ''),
-    hBtn('addOverlay', '추가', 'bg-white/5 hover:bg-white/10', 'plus')) +
+      `<div class="flex gap-1.5 mt-3">${hBtn('ovAll', '모든 장에')}${hBtn('ovDel', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600')}</div>` : ''),
+    hBtn('addOverlay', '추가', 'bg-neutral-100 hover:bg-neutral-200', 'plus')) +
   hSection('보이기',
     hSwitch('hideTitle', '제목') + hSwitch('hideSub', '부제')) +
-  hSection('배경 어둡게',
+  hSection('카드 배경',
+    hRow('색', hSwatches('cardBg', style.cardBg)) +
     hSwitch('gradOn', '그라데이션') +
     (style.gradOn ? hRow('방향', hSeg('gradDir')) + hSlider('darken') : ''));
 }
 function overlayList(c) {
-  if (!c.overlays.length) return `<p class="text-neutral-500 text-[11px]">로고·스티커 png나 짧은 영상을 얹을 수 있습니다</p>`;
+  if (!c.overlays.length) return `<p class="text-neutral-9000 text-[11px]">로고·스티커 png나 짧은 영상을 얹을 수 있습니다</p>`;
   return `<div class="flex flex-wrap gap-1.5">` + c.overlays.map((o, i) =>
-    `<button data-act="ovPick" data-i="${i}" class="size-9 rounded grid place-items-center overflow-hidden ${state.sel.kind === 'overlay' && state.sel.i === i ? 'ring-1 ring-brand-400 bg-white/10' : 'ring-1 ring-white/10 bg-white/5 opacity-70 hover:opacity-100'}">
+    `<button data-act="ovPick" data-i="${i}" class="size-9 rounded grid place-items-center overflow-hidden ${state.sel.kind === 'overlay' && state.sel.i === i ? 'ring-1 ring-brand-400 bg-neutral-200' : 'ring-1 ring-neutral-200 bg-neutral-100 opacity-70 hover:opacity-100'}">
       ${o.kind === 'video' ? ic('video') : `<img src="${o.el.src}" class="max-w-full max-h-full object-contain">`}</button>`).join('') + '</div>';
 }
 
 function textPanel() {
   const c = cur();
-  if (!c) return hSection('', `<p class="text-neutral-500">장을 먼저 만들어주세요</p>`);
-  const ta = (id, label, val, ph) => `<label class="block text-neutral-500 mb-1.5 mt-3 first:mt-0">${label}</label>
-    <textarea data-txt="${id}" rows="2" placeholder="${ph}" class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs text-neutral-50 placeholder:text-neutral-500 outline-none focus:bg-white/10 resize-none">${esc(val)}</textarea>`;
+  if (!c) return hSection('', `<p class="text-neutral-9000">장을 먼저 만들어주세요</p>`);
+  const ta = (id, label, val, ph) => `<label class="block text-neutral-9000 mb-1.5 mt-3 first:mt-0">${label}</label>
+    <textarea data-txt="${id}" rows="2" placeholder="${ph}" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 resize-none">${esc(val)}</textarea>`;
   return hSection('글',
     ta('title', '첫째 줄', c.title, '제목을 입력하세요') +
     ta('sub', '둘째 줄', c.sub, '부제를 입력하세요') +
-    `<p class="text-neutral-500 mt-2 text-[11px]">${style.enterSplits ? '엔터 = 다음 장 · ⇧엔터 = 줄바꿈' : '엔터 = 줄바꿈 · 빈 줄은 그만큼 여백'}</p>`) +
+    `<p class="text-neutral-9000 mt-2 text-[11px]">${style.enterSplits ? '엔터 = 다음 장 · ⇧엔터 = 줄바꿈' : '엔터 = 줄바꿈 · 빈 줄은 그만큼 여백'}</p>`) +
   hSection('고른 글자',
     hRow('색', hSwatches('charColor', '')) +
-    `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-white/5 hover:bg-white/10', 'bold')}${hBtn('charClear', '서식 지우기')}</div>
-     <p class="text-neutral-500 mt-2 text-[11px]">글자를 드래그해서 고른 뒤 누르면 그 부분만 바뀝니다</p>`) +
+    `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-neutral-100 hover:bg-neutral-200', 'bold')}${hBtn('charClear', '서식 지우기')}</div>
+     <p class="text-neutral-9000 mt-2 text-[11px]">글자를 드래그해서 고른 뒤 누르면 그 부분만 바뀝니다</p>`) +
   hSection('이 장만',
     hSlider('tSize') + hSlider('sSize') +
     `<div class="mt-3">${hBtn('sizeInherit', '문서 설정 따르기')}</div>`) +
@@ -1979,26 +1997,26 @@ function textPanel() {
 
 function boxPanel() {
   const t = selBox();
-  if (!t) return hSection('글상자', `<p class="text-neutral-500 text-[11px]">글상자가 없습니다</p><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-white/10 hover:bg-white/20', 'plus')}</div>`);
+  if (!t) return hSection('글상자', `<p class="text-neutral-9000 text-[11px]">글상자가 없습니다</p><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-neutral-200 hover:bg-neutral-300', 'plus')}</div>`);
   return hSection('글상자',
-    `<textarea data-txt="box" rows="3" class="w-full bg-white/5 rounded-lg px-3 py-2 text-xs outline-none focus:bg-white/10 resize-none">${esc(t.text)}</textarea>` +
+    `<textarea data-txt="box" rows="3" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs outline-none focus:bg-neutral-200 resize-none">${esc(t.text)}</textarea>` +
     hRow('종류', hSeg('boxKind')) +
     hFace('boxFace', t.face || (t.kind === 'title' ? style.titleFace : style.subFace), '글씨체') +
     hSlider('boxSize') + hSlider('boxW') +
     hRow('정렬', hSeg('boxAlign')) +
     hRow('색', hSwatches('boxColor', t.color || style.color)) +
-    `<div class="flex gap-1.5 mt-3">${hBtn('boxFront', '맨 앞으로')}${hBtn('boxBack', '맨 뒤로')}${hBtn('boxDel', '삭제', 'bg-white/5 hover:bg-white/10 text-neutral-400', 'trash')}</div>`) +
+    `<div class="flex gap-1.5 mt-3">${hBtn('boxFront', '맨 앞으로')}${hBtn('boxBack', '맨 뒤로')}${hBtn('boxDel', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>`) +
   hSection('고른 글자',
     hRow('색', hSwatches('charColor', '')) +
-    `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-white/5 hover:bg-white/10', 'bold')}${hBtn('charClear', '서식 지우기')}</div>`) +
+    `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-neutral-100 hover:bg-neutral-200', 'bold')}${hBtn('charClear', '서식 지우기')}</div>`) +
   hSection('다른 글상자', boxList());
 }
 function boxList() {
   const c = cur();
   if (!c?.texts.length) return '';
   return `<div class="flex flex-col gap-1">` + c.texts.map((t, i) =>
-    `<button data-act="boxPick" data-i="${i}" class="text-left px-2.5 py-1.5 rounded-lg truncate ${state.sel.i === i ? 'bg-white/10 text-neutral-50' : 'text-neutral-400 hover:bg-white/5'}">${esc(t.text.split('\n')[0] || '(빈 글상자)')}</button>`).join('') +
-    `</div><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-white/5 hover:bg-white/10', 'plus')}</div>`;
+    `<button data-act="boxPick" data-i="${i}" class="text-left px-2.5 py-1.5 rounded-lg truncate ${state.sel.i === i ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">${esc(t.text.split('\n')[0] || '(빈 글상자)')}</button>`).join('') +
+    `</div><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-neutral-100 hover:bg-neutral-200', 'plus')}</div>`;
 }
 
 let propKindCache = '';
@@ -2265,47 +2283,47 @@ defAct('leftTab', el => { leftTab = el.dataset.t; renderLeft(); if (mqPhone.matc
 
 function renderRail() {
   $('rail').innerHTML = LEFT_TABS.map(([k, label, icon]) =>
-    `<button data-act="leftTab" data-t="${k}" title="${label}" class="size-9 grid place-items-center rounded-lg ${k === leftTab ? 'bg-white/10' : 'hover:bg-white/10'}">${ic(icon, k === leftTab ? 'active' : 'icon')}</button>`).join('');
+    `<button data-act="leftTab" data-t="${k}" title="${label}" class="size-9 grid place-items-center rounded-lg ${k === leftTab ? 'bg-neutral-200' : 'hover:bg-neutral-200'}">${ic(icon, k === leftTab ? 'active' : 'icon')}</button>`).join('');
   $('leftSheetTabs').innerHTML = LEFT_TABS.map(([k, label]) =>
-    `<button data-act="leftTab" data-t="${k}" class="seg px-3 rounded-full shrink-0 ${k === leftTab ? 'bg-white/10 text-neutral-50' : 'text-neutral-500'}">${label}</button>`).join('');
+    `<button data-act="leftTab" data-t="${k}" class="seg px-3 rounded-full shrink-0 ${k === leftTab ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000'}">${label}</button>`).join('');
 }
 
 function filePanel() {
   const list = state.folders.map(f =>
-    `<button data-act="openFolder" data-id="${f.id}" class="w-full text-left px-2.5 py-2 rounded-lg flex items-center gap-2 ${f.id === state.folderId ? 'bg-white/10 text-neutral-50' : 'text-neutral-400 hover:bg-white/5'}">
+    `<button data-act="openFolder" data-id="${f.id}" class="w-full text-left px-2.5 py-2 rounded-lg flex items-center gap-2 ${f.id === state.folderId ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">
       ${ic('folder', f.id === state.folderId ? 'active' : 'icon')}<span class="truncate">${esc(f.name)}</span></button>`).join('');
   const tpl = state.templates.length
     ? state.templates.map((t, i) => `<div class="flex items-center gap-1 mt-1 first:mt-0">
-        <button data-act="tplApply" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg text-neutral-400 hover:bg-white/5 truncate">${esc(t.name)}</button>
-        <button data-act="tplDel" data-i="${i}" class="size-7 grid place-items-center rounded-full hover:bg-white/10">${ic('trash')}</button></div>`).join('')
-    : `<p class="text-neutral-500 text-[11px]">지금 서식을 이름 붙여 저장해두면 다른 폴더에서 눌러 적용할 수 있습니다 · 사진은 담기지 않습니다</p>`;
+        <button data-act="tplApply" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg text-neutral-600 hover:bg-neutral-100 truncate">${esc(t.name)}</button>
+        <button data-act="tplDel" data-i="${i}" class="size-7 grid place-items-center rounded-full hover:bg-neutral-200">${ic('trash')}</button></div>`).join('')
+    : `<p class="text-neutral-9000 text-[11px]">지금 서식을 이름 붙여 저장해두면 다른 폴더에서 눌러 적용할 수 있습니다 · 사진은 담기지 않습니다</p>`;
   return hSection('폴더', `<div class="flex flex-col gap-0.5">${list}</div>
-      <div class="flex gap-1.5 mt-3">${hBtn('newFolder', '새 폴더', 'bg-white/5 hover:bg-white/10', 'plus')}${hBtn('renameFolder', '이름', 'bg-white/5 hover:bg-white/10', 'pencil')}</div>
-      <div class="flex gap-1.5 mt-1.5">${hBtn('dupFolder', '복제', 'bg-white/5 hover:bg-white/10', 'copy')}${hBtn('delFolder', '삭제', 'bg-white/5 hover:bg-white/10 text-neutral-400', 'trash')}</div>`) +
+      <div class="flex gap-1.5 mt-3">${hBtn('newFolder', '새 폴더', 'bg-neutral-100 hover:bg-neutral-200', 'plus')}${hBtn('renameFolder', '이름', 'bg-neutral-100 hover:bg-neutral-200', 'pencil')}</div>
+      <div class="flex gap-1.5 mt-1.5">${hBtn('dupFolder', '복제', 'bg-neutral-100 hover:bg-neutral-200', 'copy')}${hBtn('delFolder', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>`) +
     hSection('서식 템플릿', tpl +
-      `<div class="flex gap-1.5 mt-3">${hBtn('tplSave', '지금 서식 저장', 'bg-white/10 hover:bg-white/20')}</div>
-       <div class="flex gap-1.5 mt-1.5">${hBtn('tplExport', '파일로', 'bg-white/5 hover:bg-white/10', 'download')}${hBtn('tplImport', '가져오기', 'bg-white/5 hover:bg-white/10', 'upload')}</div>`);
+      `<div class="flex gap-1.5 mt-3">${hBtn('tplSave', '지금 서식 저장', 'bg-neutral-200 hover:bg-neutral-300')}</div>
+       <div class="flex gap-1.5 mt-1.5">${hBtn('tplExport', '파일로', 'bg-neutral-100 hover:bg-neutral-200', 'download')}${hBtn('tplImport', '가져오기', 'bg-neutral-100 hover:bg-neutral-200', 'upload')}</div>`);
 }
 
 function layerPanel() {
   const c = cur();
-  if (!c) return hSection('레이어', `<p class="text-neutral-500 text-[11px]">장을 먼저 만들어주세요</p>`);
+  if (!c) return hSection('레이어', `<p class="text-neutral-9000 text-[11px]">장을 먼저 만들어주세요</p>`);
   const row = (label, sel, act, i, hideSeg) =>
     `<div class="flex items-center gap-1 mt-0.5 first:mt-0">
-      <button data-act="${act}" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg truncate ${sel ? 'bg-white/10 text-neutral-50' : 'text-neutral-400 hover:bg-white/5'}">${esc(label)}</button>
+      <button data-act="${act}" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg truncate ${sel ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">${esc(label)}</button>
       ${hideSeg || ''}</div>`;
-  const eye = (id, on) => `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="size-7 shrink-0 grid place-items-center rounded-full hover:bg-white/10">${ic(on ? 'eye' : 'eyeOff', on ? 'muted' : 'icon')}</button>`;
+  const eye = (id, on) => `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="size-7 shrink-0 grid place-items-center rounded-full hover:bg-neutral-200">${ic(on ? 'eye' : 'eyeOff', on ? 'muted' : 'icon')}</button>`;
   let out = '';
   c.texts.forEach((t, i) => { out += row('글상자 · ' + (t.text.split('\n')[0] || '빈 상자'), state.sel.kind === 'box' && state.sel.i === i, 'boxPick', i); });
   if (c.sub) out += row('부제 · ' + c.sub.split('\n')[0], state.sel.kind === 'text', 'selText', -1, eye('hideSub', !c.hidden.sub));
   if (c.title) out += row('제목 · ' + c.title.split('\n')[0], state.sel.kind === 'text', 'selText', -1, eye('hideTitle', !c.hidden.title));
   c.overlays.forEach((o, i) => { out += row((o.kind === 'video' ? '영상' : '사진') + ' 꾸밈 ' + (i + 1), state.sel.kind === 'overlay' && state.sel.i === i, 'ovPick', i); });
   if (c.media) out += row('배경 · ' + (c.media.kind === 'video' ? '영상' : '사진'), state.sel.kind === 'media', 'selMedia', -1, eye('hideMedia', !c.hidden.media));
-  if (!out) out = `<p class="text-neutral-500 text-[11px]">아직 아무것도 없습니다</p>`;
+  if (!out) out = `<p class="text-neutral-9000 text-[11px]">아직 아무것도 없습니다</p>`;
   return hSection('레이어', out) +
     hSection('장 순서', state.cards.map((x, i) =>
-      `<button data-act="goCard" data-i="${i}" class="w-full text-left px-2.5 py-1.5 rounded-lg truncate ${i === state.active ? 'bg-white/10 text-neutral-50' : 'text-neutral-400 hover:bg-white/5'}">${i + 1}. ${esc(x.name || x.title.split('\n')[0] || '빈 장')}</button>`).join('') +
-      `<div class="flex gap-1.5 mt-3">${hBtn('moveL', '앞으로', 'bg-white/5 hover:bg-white/10', 'chevronLeft')}${hBtn('moveR', '뒤로', 'bg-white/5 hover:bg-white/10', 'chevronRight')}</div>`);
+      `<button data-act="goCard" data-i="${i}" class="w-full text-left px-2.5 py-1.5 rounded-lg truncate ${i === state.active ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">${i + 1}. ${esc(x.name || x.title.split('\n')[0] || '빈 장')}</button>`).join('') +
+      `<div class="flex gap-1.5 mt-3">${hBtn('moveL', '앞으로', 'bg-neutral-100 hover:bg-neutral-200', 'chevronLeft')}${hBtn('moveR', '뒤로', 'bg-neutral-100 hover:bg-neutral-200', 'chevronRight')}</div>`);
 }
 defAct('selText', () => select('text', -1));
 defAct('selMedia', () => select('media', -1));
@@ -2319,14 +2337,14 @@ function assetPanel() {
     if (c.media?.bid) seen.set(c.media.bid, c.media);
     c.overlays.forEach(o => o.bid && seen.set(o.bid, o));
   });
-  if (!seen.size) return hSection('에셋', `<p class="text-neutral-500 text-[11px]">이 폴더에 넣은 사진·영상이 여기 모입니다</p>`);
+  if (!seen.size) return hSection('에셋', `<p class="text-neutral-9000 text-[11px]">이 폴더에 넣은 사진·영상이 여기 모입니다</p>`);
   const items = [...seen.entries()].map(([bid, m]) =>
-    `<button data-act="useAsset" data-bid="${bid}" class="relative aspect-[3/4] rounded overflow-hidden ring-1 ring-white/10 hover:ring-white/30">
+    `<button data-act="useAsset" data-bid="${bid}" class="relative aspect-[3/4] rounded overflow-hidden ring-1 ring-neutral-200 hover:ring-neutral-400">
       ${(m.kind === 'video' || m.el?.tagName === 'VIDEO')
-        ? `<span class="absolute inset-0 grid place-items-center bg-white/5">${ic('video')}</span>`
+        ? `<span class="absolute inset-0 grid place-items-center bg-neutral-100">${ic('video')}</span>`
         : `<img src="${m.el.src}" class="w-full h-full object-cover">`}</button>`).join('');
   return hSection('에셋', `<div class="grid grid-cols-3 gap-1.5">${items}</div>
-    <p class="text-neutral-500 mt-3 text-[11px]">누르면 지금 장의 배경이 됩니다</p>`);
+    <p class="text-neutral-9000 mt-3 text-[11px]">누르면 지금 장의 배경이 됩니다</p>`);
 }
 defAct('useAsset', async el => {
   const m = await mediaFor(el.dataset.bid);
@@ -2341,8 +2359,8 @@ function animPanel() {
   return hSection('애니메이션',
     hRow('글', hSeg('animText', 'flex-wrap')) +
     hRow('사진', hSeg('animMedia')) +
-    `<div class="mt-3">${hBtn('preview', '미리보기 재생', 'bg-white/10 hover:bg-white/20 w-full', 'play')}</div>
-     <p class="text-neutral-500 mt-2 text-[11px]">지금 보고 있는 장에 적용해 재생합니다</p>`);
+    `<div class="mt-3">${hBtn('preview', '미리보기 재생', 'bg-neutral-200 hover:bg-neutral-300 w-full', 'play')}</div>
+     <p class="text-neutral-9000 mt-2 text-[11px]">지금 보고 있는 장에 적용해 재생합니다</p>`);
 }
 
 function outPanel() {
@@ -2350,16 +2368,16 @@ function outPanel() {
   return hSection('내보내기',
     hRow('선명도', hSeg('exportScale')) +
     `<div class="flex flex-col gap-1.5 mt-3">
-      ${hBtn('expOne', '현재 장', 'bg-white/5 hover:bg-white/10 w-full', 'download')}
-      ${hBtn('expPicked', `고른 장 ${picked}장`, 'bg-white/5 hover:bg-white/10 w-full', 'download')}
-      ${hBtn('expAll', '전체', 'bg-white/10 hover:bg-white/20 w-full', 'download')}
+      ${hBtn('expOne', '현재 장', 'bg-neutral-100 hover:bg-neutral-200 w-full', 'download')}
+      ${hBtn('expPicked', `고른 장 ${picked}장`, 'bg-neutral-100 hover:bg-neutral-200 w-full', 'download')}
+      ${hBtn('expAll', '전체', 'bg-neutral-200 hover:bg-neutral-300 w-full', 'download')}
     </div>
-    <p class="text-neutral-500 mt-3 text-[11px]">사진이 있는 장은 jpg, 글만 있는 장은 png로 나갑니다 · 영상 장은 그 길이만큼 실시간 녹화합니다</p>`) +
+    <p class="text-neutral-9000 mt-3 text-[11px]">사진이 있는 장은 jpg, 글만 있는 장은 png로 나갑니다 · 영상 장은 그 길이만큼 실시간 녹화합니다</p>`) +
   hSection('장 고르기', state.cards.map((c, i) =>
     `<label class="cbx flex items-center gap-2 py-1 cursor-pointer select-none">
       <input type="checkbox" data-pick="${i}" ${c.pick !== false ? 'checked' : ''} class="sr-only">
-      <span class="box size-4 shrink-0 rounded bg-white/5 grid place-items-center"><svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500 opacity-0"><path d="${ICON.check}"/></svg></span>
-      <span class="text-neutral-400 truncate">${i + 1}. ${esc(c.name || c.title.split('\n')[0] || '빈 장')}</span>
+      <span class="box size-4 shrink-0 rounded bg-neutral-100 grid place-items-center"><svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-9000 opacity-0"><path d="${ICON.check}"/></svg></span>
+      <span class="text-neutral-600 truncate">${i + 1}. ${esc(c.name || c.title.split('\n')[0] || '빈 장')}</span>
     </label>`).join('') +
     `<div class="flex gap-1.5 mt-3">${hBtn('pickAll', '모두')}${hBtn('pickNone', '해제')}</div>`);
 }
@@ -2422,7 +2440,7 @@ defAct('delFolder', async () => {
 
 /* a template is the look only — no photos, so it stays a few kilobytes */
 const TPL_KEYS = ['titleSize','subSize','lineHeight','letterSpacing','align','titleWeight','subWeight','titleFace','subFace',
-  'color','subOpacity','padX','padBottom','gradOn','gradDir','darken','fill','animText','animMedia',
+  'color','subOpacity','padX','padBottom','cardBg','gradOn','gradDir','darken','fill','animText','animMedia',
   'showPageNum','showSafe','showLabels','showCenter','textShared','textPos','textW',
   'shadowOn','shadowColor','shadowAngle','shadowOpacity','shadowDist','shadowBlur','enterSplits'];
 const tplStyle = () => Object.fromEntries(TPL_KEYS.map(k => [k, style[k]]));
@@ -2673,8 +2691,8 @@ const TOOLS = [
 ];
 function renderToolbar() {
   $('toolbar').innerHTML = TOOLS.map(([label, icon], i) =>
-    `<button data-tool="${i}" class="flex-1 min-w-[60px] flex flex-col items-center justify-center gap-1 py-2 border-l border-white/10 first:border-l-0 hover:bg-white/5">
-      ${ic(icon)}<span class="text-neutral-400 text-[11px]">${label}</span></button>`).join('');
+    `<button data-tool="${i}" class="flex-1 min-w-[60px] flex flex-col items-center justify-center gap-1 py-2 border-l border-neutral-200 first:border-l-0 hover:bg-neutral-100">
+      ${ic(icon)}<span class="text-neutral-600 text-[11px]">${label}</span></button>`).join('');
 }
 $('toolbar').addEventListener('click', e => {
   const b = e.target.closest('[data-tool]'); if (!b) return;
@@ -2689,7 +2707,7 @@ let sheetOpen = false;
 function renderMTabs() {
   const t = propTab();
   $('mtabs').innerHTML = PROP_TABS.map(([k, l]) =>
-    `<button data-mtab="${k}" class="flex-1 py-2.5 ${sheetOpen && k === t ? 'text-neutral-50 bg-white/5' : 'text-neutral-500'}">${l}</button>`).join('');
+    `<button data-mtab="${k}" class="flex-1 py-2.5 ${sheetOpen && k === t ? 'text-neutral-900 bg-neutral-100' : 'text-neutral-9000'}">${l}</button>`).join('');
 }
 $('mtabs').addEventListener('click', e => {
   const b = e.target.closest('[data-mtab]'); if (!b) return;
