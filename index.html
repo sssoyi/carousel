@@ -70,7 +70,7 @@
         </div>
         <div class="min-w-0">
           <p class="text-neutral-900 truncate leading-4">럭키마미 캐러셀 디자인</p>
-          <p id="subTitle" class="text-neutral-9000 text-[11px] truncate leading-4"></p>
+          <p id="subTitle" class="text-neutral-500 text-[11px] truncate leading-4"></p>
         </div>
         <span id="notice" class="text-amber-600 truncate hidden lg:inline pl-2"></span>
       </div>
@@ -114,7 +114,7 @@
         <div id="empty" class="absolute inset-0 grid place-items-center pointer-events-none">
           <div class="text-center">
             <p class="text-neutral-600">사진 · 영상을 끌어다 놓거나 붙여넣기 (⌘V)</p>
-            <p class="text-neutral-9000 mt-1 text-[11px]">빈 장으로 글부터 써도 됩니다 · 3:4 · 1080 × 1440</p>
+            <p class="text-neutral-500 mt-1 text-[11px]">빈 장으로 글부터 써도 됩니다 · 3:4 · 1080 × 1440</p>
           </div>
         </div>
         <div id="dropHint" class="absolute inset-3 rounded border border-brand-400/40 bg-brand-400/5 hidden pointer-events-none"></div>
@@ -150,9 +150,9 @@
   <div class="absolute inset-0 bg-white/30" data-dlg-cancel></div>
   <div class="absolute inset-x-4 top-1/2 -translate-y-1/2 mx-auto max-w-[380px] rounded-xl bg-white border border-neutral-200 shadow-xl p-4">
     <p id="dlgTitle" class="text-neutral-900 mb-1"></p>
-    <p id="dlgNote" class="text-neutral-9000 text-[11px] mb-3"></p>
-    <input id="dlgInput" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 off">
-    <textarea id="dlgArea" rows="8" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 resize-none off"></textarea>
+    <p id="dlgNote" class="text-neutral-500 text-[11px] mb-3"></p>
+    <input id="dlgInput" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-neutral-200 off">
+    <textarea id="dlgArea" rows="8" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-neutral-200 resize-none off"></textarea>
     <div class="flex items-center justify-end gap-1.5 mt-3">
       <button id="dlgCancel" class="seg px-3 rounded-full bg-neutral-100 hover:bg-neutral-200 text-neutral-600">취소</button>
       <button id="dlgOk" class="seg px-4 rounded-full bg-neutral-200 hover:bg-neutral-300">확인</button>
@@ -343,7 +343,7 @@ const DEFAULT_STYLE = {
   exportScale: 2,
   shadowOn: false, shadowColor: '#000000', shadowAngle: 297,
   shadowOpacity: 45, shadowDist: 10, shadowBlur: 12,
-  enterSplits: true, singleView: true,
+  enterSplits: false, singleView: true,
 };
 const SWATCHES = ['#000000', '#ffffff', '#feefc5', '#2e3d86', '#8FAF9D'];
 /* is this colour light enough that guides drawn on it have to go dark? */
@@ -1595,7 +1595,7 @@ function hSlider(id) {
   const v = c.get();
   return `<div class="mt-3 first:mt-0">
     <div class="flex items-center justify-between mb-1.5">
-      <span class="text-neutral-9000">${esc(c.label)}</span>
+      <span class="text-neutral-500">${esc(c.label)}</span>
       <span class="font-mono text-[11px] text-neutral-600" data-out="${id}">${fmtVal(c, v)}</span>
     </div>
     <input type="range" min="${c.min}" max="${c.max}" step="${c.step}" value="${v}" data-ctl="${id}" class="w-full">
@@ -1608,16 +1608,16 @@ function hSeg(id, cls = '') {
   const v = String(s.get());
   return `<div class="inline-flex seg items-center rounded-full bg-neutral-100 ${cls}">` + s.opts.map(([val, lab]) => {
     const on = String(val) === v;
-    return `<button data-seg="${id}" data-val="${esc(val)}" class="seg px-2.5 rounded-full whitespace-nowrap ${on ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000 hover:text-neutral-600'}">${lab}</button>`;
+    return `<button data-seg="${id}" data-val="${esc(val)}" class="seg px-2.5 rounded-full whitespace-nowrap ${on ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-500 hover:text-neutral-600'}">${lab}</button>`;
   }).join('') + '</div>';
 }
 function hRow(label, right) {
-  return `<div class="flex items-center justify-between gap-2 mt-3 first:mt-0"><span class="text-neutral-9000 shrink-0">${esc(label)}</span>${right}</div>`;
+  return `<div class="flex items-center justify-between gap-2 mt-3 first:mt-0"><span class="text-neutral-500 shrink-0">${esc(label)}</span>${right}</div>`;
 }
 function hSwitch(id, label) {
   const s = SEG[id];
   const on = bool(s.get());
-  return hRow(label, `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="seg px-3 rounded-full ${on ? 'bg-neutral-200 text-neutral-900' : 'bg-neutral-100 text-neutral-9000'}">${on ? '켜기' : '끄기'}</button>`);
+  return hRow(label, `<button data-seg="${id}" data-val="${on ? 'false' : 'true'}" class="seg px-3 rounded-full ${on ? 'bg-neutral-200 text-neutral-900' : 'bg-neutral-100 text-neutral-500'}">${on ? '켜기' : '끄기'}</button>`);
 }
 function hSection(title, body, extra = '') {
   return `<div class="border-t border-neutral-200 first:border-t-0 px-4 py-4">
@@ -1685,7 +1685,7 @@ function openFaceMenu(anchor, id) {
   const cur0 = target?.get();
   menu.innerHTML = FACE_GROUPS.map(g => {
     const items = Object.entries(FACES).filter(([, f]) => f.group === g);
-    return `<p class="px-3 pt-2 pb-1 text-neutral-9000 text-[11px]">${g}</p>` + items.map(([k, f]) =>
+    return `<p class="px-3 pt-2 pb-1 text-neutral-500 text-[11px]">${g}</p>` + items.map(([k, f]) =>
       `<button data-pick="${k}" class="w-full text-left px-3 py-2 hover:bg-neutral-200 flex items-center justify-between gap-2 ${k === cur0 ? 'bg-neutral-100' : ''}">
         <span class="truncate text-neutral-900" style="font-family:'${esc(f.family)}','Pretendard Variable',sans-serif">${esc(f.name)}</span>
         ${k === cur0 ? ic('check', 'active') : ''}</button>`).join('');
@@ -1882,19 +1882,19 @@ defAct('charClear', () => applyCharFmt({ c: null, b: false }));
 /* ==========================================================================
    right panel
    ========================================================================== */
-const PROP_TABS = [['doc', '문서'], ['frame', '프레임'], ['text', '텍스트'], ['box', '글상자']];
+const PROP_TABS = [['doc', '문서'], ['frame', '프레임'], ['box', '글상자']];
 function propTab() {
   if (!state.cards.length) return 'doc';
-  if (state.sel.kind === 'text') return 'text';
+  /* 글은 문서 패널 맨 위에 있다 — 쓰다가 탭을 옮겨다니지 않도록 */
+  if (state.sel.kind === 'text') return 'doc';
   if (state.sel.kind === 'box') return 'box';
   if (state.sel.kind === 'media' || state.sel.kind === 'overlay') return 'frame';
   return 'doc';
 }
 defAct('tab', el => {
   const t = el.dataset.tab;
-  if (t === 'doc') select('none', -1);
+  if (t === 'doc') select('text', -1);
   if (t === 'frame') select('media', -1);
-  if (t === 'text') select('text', -1);
   if (t === 'box') {
     const c = cur();
     if (!c?.texts.length) return addTextBox();
@@ -1906,20 +1906,41 @@ function propHead() {
   if (mqPhone.matches) return '';      /* the bottom tab bar already is this */
   const t = propTab();
   return `<div class="border-b border-neutral-200 px-3 py-2.5 flex gap-1 sticky top-0 bg-white z-10">` +
-    PROP_TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="seg flex-1 rounded-full ${k === t ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000 hover:bg-neutral-100'}">${l}</button>`).join('') + '</div>';
+    PROP_TABS.map(([k, l]) => `<button data-act="tab" data-tab="${k}" class="seg flex-1 rounded-full ${k === t ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-500 hover:bg-neutral-100'}">${l}</button>`).join('') + '</div>';
 }
 
 function docPanel() {
-  return hSection('글씨체',
-    hFace('titleFace', style.titleFace, '제목') +
-    hWeightRow('제목 굵기', 'titleWeight', style.titleFace) +
-    hFace('subFace', style.subFace, '부제') +
-    hWeightRow('부제 굵기', 'subWeight', style.subFace)) +
+  const c = cur();
+  const ta = (id, label, val, ph) => `<label class="block text-neutral-500 mb-1.5 mt-3 first:mt-0">${label}</label>
+    <textarea data-txt="${id}" rows="2" placeholder="${ph}" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-neutral-200 resize-none">${esc(val)}</textarea>`;
+  const writing = !c ? hSection('글', `<p class="text-neutral-500">장을 먼저 만들어주세요</p>`) :
+    hSection('글',
+      ta('title', '큰제목', c.title, '큰제목을 입력하세요') +
+      ta('sub', '작은제목', c.sub, '작은제목을 입력하세요') +
+      `<p class="text-neutral-500 mt-2 text-[11px]">${style.enterSplits ? '엔터 = 다음 장 · ⇧엔터 = 줄바꿈' : '엔터로 줄을 바꿉니다 · 빈 줄은 그만큼 여백이 됩니다'}</p>`) +
+    hSection('여러 장 한번에',
+      `<textarea data-bulk rows="8" placeholder="첫 장 큰제목&#10;첫 장 작은제목&#10;&#10;둘째 장 큰제목&#10;둘째 장 작은제목" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-400 outline-none focus:bg-neutral-200 resize-none">${esc(bulkText)}</textarea>
+       <div class="mt-3">${hBtn('bulkApply', '채우기', 'bg-neutral-200 hover:bg-neutral-300 w-full')}</div>
+       <p class="text-neutral-500 mt-2 text-[11px]">빈 줄로 장을 나눕니다 · 덩어리의 첫 줄이 큰제목, 나머지가 작은제목 · 1장부터 순서대로 채우고 모자라면 장을 더 만듭니다</p>`) +
+    hSection('고른 글자',
+      hRow('색', hSwatches('charColor', '')) +
+      `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-neutral-100 hover:bg-neutral-200', 'bold')}${hBtn('charClear', '서식 지우기')}</div>
+       <p class="text-neutral-500 mt-2 text-[11px]">글자를 드래그해서 고른 뒤 누르면 그 부분만 바뀝니다</p>`);
+
+  return writing +
+  hSection('글씨체',
+    hFace('titleFace', style.titleFace, '큰제목') +
+    hWeightRow('큰제목 굵기', 'titleWeight', style.titleFace) +
+    hFace('subFace', style.subFace, '작은제목') +
+    hWeightRow('작은제목 굵기', 'subWeight', style.subFace)) +
   hSection('타이포',
     hSlider('titleSize') + hSlider('subSize') + hSlider('lineHeight') + hSlider('letterSpacing') +
     hRow('정렬', hSeg('align')) +
     hRow('색', hSwatches('color', style.color)) +
     hSlider('subOpacity')) +
+  (c ? hSection('이 장만',
+    hSlider('tSize') + hSlider('sSize') +
+    `<div class="mt-3">${hBtn('sizeInherit', '문서 설정 따르기')}</div>`) : '') +
   hSection('글씨 그림자',
     hSwitch('shadowOn', '그림자') +
     (style.shadowOn ? hRow('색', hSwatches('shadowColor', style.shadowColor)) + hSlider('shadowAngle') + hSlider('shadowOpacity') + hSlider('shadowDist') + hSlider('shadowBlur') : '')) +
@@ -1943,18 +1964,18 @@ function docPanel() {
 
 function framePanel() {
   const c = cur();
-  if (!c) return hSection('', `<p class="text-neutral-9000">장을 먼저 만들어주세요</p>`);
+  if (!c) return hSection('', `<p class="text-neutral-500">장을 먼저 만들어주세요</p>`);
   const o = selOv();
   const v = c.media?.kind === 'video' ? c.media.el : null;
   return hSection('이 장',
-    `<input data-name class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs outline-none focus:bg-neutral-200 placeholder:text-neutral-600" placeholder="카드 ${state.active + 1}" value="${esc(c.name)}">` +
+    `<input data-name class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs outline-none focus:bg-neutral-200 placeholder:text-neutral-400" placeholder="카드 ${state.active + 1}" value="${esc(c.name)}">` +
     `<div class="flex gap-1.5 mt-3">${hBtn('dupCard', '복제', 'bg-neutral-100 hover:bg-neutral-200', 'copy')}${hBtn('delCard', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>` +
     hSwitch('cardPick', '내보내기에 포함')) +
   hSection('배경',
     `<div class="flex gap-1.5">${hBtn('pickBg', c.media ? '바꾸기' : '사진 · 영상 넣기', 'bg-neutral-100 hover:bg-neutral-200 flex-1')}${c.media ? hBtn('resetBg', '맞춤 초기화') : ''}</div>` +
     (c.media ? hSlider('zoom') + hSwitch('hideMedia', '배경 보이기') : '') +
-    (v ? `<div class="flex items-center gap-1.5 mt-3">${hBtn('vPlay', v.paused ? '재생' : '일시정지', 'bg-neutral-100 hover:bg-neutral-200 flex-1')}${hBtn('vLoop', '반복', v.loop ? 'bg-neutral-200' : 'bg-neutral-100 text-neutral-9000')}${hBtn('vMute', v.muted ? '음소거' : '소리', v.muted ? 'bg-neutral-100 text-neutral-9000' : 'bg-neutral-200')}</div>` : '') +
-    (c.media ? '' : `<p class="text-neutral-9000 mt-3 text-[11px]">글만 있는 장입니다</p>`)) +
+    (v ? `<div class="flex items-center gap-1.5 mt-3">${hBtn('vPlay', v.paused ? '재생' : '일시정지', 'bg-neutral-100 hover:bg-neutral-200 flex-1')}${hBtn('vLoop', '반복', v.loop ? 'bg-neutral-200' : 'bg-neutral-100 text-neutral-500')}${hBtn('vMute', v.muted ? '음소거' : '소리', v.muted ? 'bg-neutral-100 text-neutral-500' : 'bg-neutral-200')}</div>` : '') +
+    (c.media ? '' : `<p class="text-neutral-500 mt-3 text-[11px]">글만 있는 장입니다</p>`)) +
   hSection('꾸밈', overlayList(c) +
     (o ? hSlider('ovSize') + hSlider('ovAlpha') + hSlider('ovRot') +
       `<div class="flex gap-1.5 mt-3">${hBtn('ovAll', '모든 장에')}${hBtn('ovDel', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600')}</div>` : ''),
@@ -1967,37 +1988,15 @@ function framePanel() {
     (style.gradOn ? hRow('방향', hSeg('gradDir')) + hSlider('darken') : ''));
 }
 function overlayList(c) {
-  if (!c.overlays.length) return `<p class="text-neutral-9000 text-[11px]">로고·스티커 png나 짧은 영상을 얹을 수 있습니다</p>`;
+  if (!c.overlays.length) return `<p class="text-neutral-500 text-[11px]">로고·스티커 png나 짧은 영상을 얹을 수 있습니다</p>`;
   return `<div class="flex flex-wrap gap-1.5">` + c.overlays.map((o, i) =>
     `<button data-act="ovPick" data-i="${i}" class="size-9 rounded grid place-items-center overflow-hidden ${state.sel.kind === 'overlay' && state.sel.i === i ? 'ring-1 ring-brand-400 bg-neutral-200' : 'ring-1 ring-neutral-200 bg-neutral-100 opacity-70 hover:opacity-100'}">
       ${o.kind === 'video' ? ic('video') : `<img src="${o.el.src}" class="max-w-full max-h-full object-contain">`}</button>`).join('') + '</div>';
 }
 
-function textPanel() {
-  const c = cur();
-  if (!c) return hSection('', `<p class="text-neutral-9000">장을 먼저 만들어주세요</p>`);
-  const ta = (id, label, val, ph) => `<label class="block text-neutral-9000 mb-1.5 mt-3 first:mt-0">${label}</label>
-    <textarea data-txt="${id}" rows="2" placeholder="${ph}" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs text-neutral-900 placeholder:text-neutral-600 outline-none focus:bg-neutral-200 resize-none">${esc(val)}</textarea>`;
-  return hSection('글',
-    ta('title', '첫째 줄', c.title, '제목을 입력하세요') +
-    ta('sub', '둘째 줄', c.sub, '부제를 입력하세요') +
-    `<p class="text-neutral-9000 mt-2 text-[11px]">${style.enterSplits ? '엔터 = 다음 장 · ⇧엔터 = 줄바꿈' : '엔터 = 줄바꿈 · 빈 줄은 그만큼 여백'}</p>`) +
-  hSection('고른 글자',
-    hRow('색', hSwatches('charColor', '')) +
-    `<div class="flex gap-1.5 mt-3">${hBtn('charBold', '굵게', 'bg-neutral-100 hover:bg-neutral-200', 'bold')}${hBtn('charClear', '서식 지우기')}</div>
-     <p class="text-neutral-9000 mt-2 text-[11px]">글자를 드래그해서 고른 뒤 누르면 그 부분만 바뀝니다</p>`) +
-  hSection('이 장만',
-    hSlider('tSize') + hSlider('sSize') +
-    `<div class="mt-3">${hBtn('sizeInherit', '문서 설정 따르기')}</div>`) +
-  hSection('자리',
-    hRow('정렬', hSeg('align')) + hSlider('textW') +
-    `<div class="flex gap-1.5 mt-3">${hBtn('fitTextW', '여백에 맞추기')}${hBtn('resetTextPos', '위치 초기화')}</div>` +
-    hSwitch('textShared', '모든 장 같은 자리'));
-}
-
 function boxPanel() {
   const t = selBox();
-  if (!t) return hSection('글상자', `<p class="text-neutral-9000 text-[11px]">글상자가 없습니다</p><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-neutral-200 hover:bg-neutral-300', 'plus')}</div>`);
+  if (!t) return hSection('글상자', `<p class="text-neutral-500 text-[11px]">글상자가 없습니다</p><div class="mt-3">${hBtn('addBox', '글상자 추가', 'bg-neutral-200 hover:bg-neutral-300', 'plus')}</div>`);
   return hSection('글상자',
     `<textarea data-txt="box" rows="3" class="w-full bg-neutral-100 rounded-lg px-3 py-2 text-xs outline-none focus:bg-neutral-200 resize-none">${esc(t.text)}</textarea>` +
     hRow('종류', hSeg('boxKind')) +
@@ -2022,7 +2021,7 @@ function boxList() {
 let propKindCache = '';
 function renderProp(force = false) {
   const t = propTab();
-  const html = propHead() + (t === 'doc' ? docPanel() : t === 'frame' ? framePanel() : t === 'text' ? textPanel() : boxPanel());
+  const html = propHead() + (t === 'doc' ? docPanel() : t === 'frame' ? framePanel() : boxPanel());
   const target = mqPhone.matches ? $('sheetBody') : $('propPane');
   const other = mqPhone.matches ? $('propPane') : $('sheetBody');
   other.innerHTML = '';
@@ -2144,13 +2143,18 @@ function addTextBox() {
   select('box', c.texts.length - 1);
   afterEdit();
 }
-async function bulkFill() {
-  const text = await ask({ title: '여러 장 한번에', note: '빈 줄로 장을 나눕니다 · 덩어리의 첫 줄이 제목, 나머지가 부제', kind: 'area', ok: '채우기', placeholder: '첫 장 제목\n첫 장 부제\n\n둘째 장 제목\n둘째 장 부제' });
-  if (text == null) return;
-  const blocks = text.split(/\n\s*\n/).map(b => b.replace(/\s+$/, '')).filter(b => b.trim()).map(b => {
+/* 원고 한 뭉치 → 여러 장. 빈 줄이 장 경계, 덩어리의 첫 줄이 제목, 나머지가 부제.
+   1장부터 순서대로 채우고 모자라면 장을 더 만든다 — 사진을 먼저 넣어뒀든
+   글을 먼저 쓰든 같은 흐름으로 붙는다. */
+let bulkText = '';
+function parseBlocks(text) {
+  return text.split(/\n\s*\n/).map(b => b.replace(/\s+$/, '')).filter(b => b.trim()).map(b => {
     const [head, ...rest] = b.split('\n');
     return { title: head.trim(), sub: rest.join('\n').trim() };
   });
+}
+function applyBulk(text) {
+  const blocks = parseBlocks(text || '');
   if (!blocks.length) return notify('붙여넣은 글이 없습니다');
   pushHistory();
   blocks.forEach((b, i) => {
@@ -2162,6 +2166,18 @@ async function bulkFill() {
   if (style.singleView) fitAll();
   refreshAll();
   notify(`${blocks.length}장에 글을 채웠습니다`);
+}
+/* 패널을 다시 그려도 쓰던 원고가 날아가지 않게 밖에 들고 있는다 */
+document.addEventListener('input', e => {
+  const el = e.target.closest?.('[data-bulk]'); if (!el) return;
+  bulkText = el.value;
+});
+defAct('bulkApply', () => applyBulk(bulkText));
+async function bulkFill() {
+  const text = await ask({ title: '여러 장 한번에', note: '빈 줄로 장을 나눕니다 · 덩어리의 첫 줄이 제목, 나머지가 부제', kind: 'area', ok: '채우기', value: bulkText, placeholder: '첫 장 제목\n첫 장 부제\n\n둘째 장 제목\n둘째 장 부제' });
+  if (text == null) return;
+  bulkText = text;
+  applyBulk(text);
 }
 
 defAct('pickBg', () => pickReplace.click());
@@ -2285,7 +2301,7 @@ function renderRail() {
   $('rail').innerHTML = LEFT_TABS.map(([k, label, icon]) =>
     `<button data-act="leftTab" data-t="${k}" title="${label}" class="size-9 grid place-items-center rounded-lg ${k === leftTab ? 'bg-neutral-200' : 'hover:bg-neutral-200'}">${ic(icon, k === leftTab ? 'active' : 'icon')}</button>`).join('');
   $('leftSheetTabs').innerHTML = LEFT_TABS.map(([k, label]) =>
-    `<button data-act="leftTab" data-t="${k}" class="seg px-3 rounded-full shrink-0 ${k === leftTab ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-9000'}">${label}</button>`).join('');
+    `<button data-act="leftTab" data-t="${k}" class="seg px-3 rounded-full shrink-0 ${k === leftTab ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-500'}">${label}</button>`).join('');
 }
 
 function filePanel() {
@@ -2296,7 +2312,7 @@ function filePanel() {
     ? state.templates.map((t, i) => `<div class="flex items-center gap-1 mt-1 first:mt-0">
         <button data-act="tplApply" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg text-neutral-600 hover:bg-neutral-100 truncate">${esc(t.name)}</button>
         <button data-act="tplDel" data-i="${i}" class="size-7 grid place-items-center rounded-full hover:bg-neutral-200">${ic('trash')}</button></div>`).join('')
-    : `<p class="text-neutral-9000 text-[11px]">지금 서식을 이름 붙여 저장해두면 다른 폴더에서 눌러 적용할 수 있습니다 · 사진은 담기지 않습니다</p>`;
+    : `<p class="text-neutral-500 text-[11px]">지금 서식을 이름 붙여 저장해두면 다른 폴더에서 눌러 적용할 수 있습니다 · 사진은 담기지 않습니다</p>`;
   return hSection('폴더', `<div class="flex flex-col gap-0.5">${list}</div>
       <div class="flex gap-1.5 mt-3">${hBtn('newFolder', '새 폴더', 'bg-neutral-100 hover:bg-neutral-200', 'plus')}${hBtn('renameFolder', '이름', 'bg-neutral-100 hover:bg-neutral-200', 'pencil')}</div>
       <div class="flex gap-1.5 mt-1.5">${hBtn('dupFolder', '복제', 'bg-neutral-100 hover:bg-neutral-200', 'copy')}${hBtn('delFolder', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>`) +
@@ -2311,7 +2327,7 @@ function filePanel() {
 
 function layerPanel() {
   const c = cur();
-  if (!c) return hSection('레이어', `<p class="text-neutral-9000 text-[11px]">장을 먼저 만들어주세요</p>`);
+  if (!c) return hSection('레이어', `<p class="text-neutral-500 text-[11px]">장을 먼저 만들어주세요</p>`);
   const row = (label, sel, act, i, hideSeg) =>
     `<div class="flex items-center gap-1 mt-0.5 first:mt-0">
       <button data-act="${act}" data-i="${i}" class="flex-1 text-left px-2.5 py-1.5 rounded-lg truncate ${sel ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">${esc(label)}</button>
@@ -2323,7 +2339,7 @@ function layerPanel() {
   if (c.title) out += row('제목 · ' + c.title.split('\n')[0], state.sel.kind === 'text', 'selText', -1, eye('hideTitle', !c.hidden.title));
   c.overlays.forEach((o, i) => { out += row((o.kind === 'video' ? '영상' : '사진') + ' 꾸밈 ' + (i + 1), state.sel.kind === 'overlay' && state.sel.i === i, 'ovPick', i); });
   if (c.media) out += row('배경 · ' + (c.media.kind === 'video' ? '영상' : '사진'), state.sel.kind === 'media', 'selMedia', -1, eye('hideMedia', !c.hidden.media));
-  if (!out) out = `<p class="text-neutral-9000 text-[11px]">아직 아무것도 없습니다</p>`;
+  if (!out) out = `<p class="text-neutral-500 text-[11px]">아직 아무것도 없습니다</p>`;
   return hSection('레이어', out) +
     hSection('장 순서', state.cards.map((x, i) =>
       `<button data-act="goCard" data-i="${i}" class="w-full text-left px-2.5 py-1.5 rounded-lg truncate ${i === state.active ? 'bg-neutral-200 text-neutral-900' : 'text-neutral-600 hover:bg-neutral-100'}">${i + 1}. ${esc(x.name || x.title.split('\n')[0] || '빈 장')}</button>`).join('') +
@@ -2341,14 +2357,14 @@ function assetPanel() {
     if (c.media?.bid) seen.set(c.media.bid, c.media);
     c.overlays.forEach(o => o.bid && seen.set(o.bid, o));
   });
-  if (!seen.size) return hSection('에셋', `<p class="text-neutral-9000 text-[11px]">이 폴더에 넣은 사진·영상이 여기 모입니다</p>`);
+  if (!seen.size) return hSection('에셋', `<p class="text-neutral-500 text-[11px]">이 폴더에 넣은 사진·영상이 여기 모입니다</p>`);
   const items = [...seen.entries()].map(([bid, m]) =>
     `<button data-act="useAsset" data-bid="${bid}" class="relative aspect-[3/4] rounded overflow-hidden ring-1 ring-neutral-200 hover:ring-neutral-400">
       ${(m.kind === 'video' || m.el?.tagName === 'VIDEO')
         ? `<span class="absolute inset-0 grid place-items-center bg-neutral-100">${ic('video')}</span>`
         : `<img src="${m.el.src}" class="w-full h-full object-cover">`}</button>`).join('');
   return hSection('에셋', `<div class="grid grid-cols-3 gap-1.5">${items}</div>
-    <p class="text-neutral-9000 mt-3 text-[11px]">누르면 지금 장의 배경이 됩니다</p>`);
+    <p class="text-neutral-500 mt-3 text-[11px]">누르면 지금 장의 배경이 됩니다</p>`);
 }
 defAct('useAsset', async el => {
   const m = await mediaFor(el.dataset.bid);
@@ -2364,7 +2380,7 @@ function animPanel() {
     hRow('글', hSeg('animText', 'flex-wrap')) +
     hRow('사진', hSeg('animMedia')) +
     `<div class="mt-3">${hBtn('preview', '미리보기 재생', 'bg-neutral-200 hover:bg-neutral-300 w-full', 'play')}</div>
-     <p class="text-neutral-9000 mt-2 text-[11px]">지금 보고 있는 장에 적용해 재생합니다</p>`);
+     <p class="text-neutral-500 mt-2 text-[11px]">지금 보고 있는 장에 적용해 재생합니다</p>`);
 }
 
 function outPanel() {
@@ -2376,11 +2392,11 @@ function outPanel() {
       ${hBtn('expPicked', `고른 장 ${picked}장`, 'bg-neutral-100 hover:bg-neutral-200 w-full', 'download')}
       ${hBtn('expAll', '전체', 'bg-neutral-200 hover:bg-neutral-300 w-full', 'download')}
     </div>
-    <p class="text-neutral-9000 mt-3 text-[11px]">사진이 있는 장은 jpg, 글만 있는 장은 png로 나갑니다 · 영상 장은 그 길이만큼 실시간 녹화합니다</p>`) +
+    <p class="text-neutral-500 mt-3 text-[11px]">사진이 있는 장은 jpg, 글만 있는 장은 png로 나갑니다 · 영상 장은 그 길이만큼 실시간 녹화합니다</p>`) +
   hSection('장 고르기', state.cards.map((c, i) =>
     `<label class="cbx flex items-center gap-2 py-1 cursor-pointer select-none">
       <input type="checkbox" data-pick="${i}" ${c.pick !== false ? 'checked' : ''} class="sr-only">
-      <span class="box size-4 shrink-0 rounded bg-neutral-100 grid place-items-center"><svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-9000 opacity-0"><path d="${ICON.check}"/></svg></span>
+      <span class="box size-4 shrink-0 rounded bg-neutral-100 grid place-items-center"><svg viewBox="0 0 16 16" fill="currentColor" class="size-4 text-neutral-500 opacity-0"><path d="${ICON.check}"/></svg></span>
       <span class="text-neutral-600 truncate">${i + 1}. ${esc(c.name || c.title.split('\n')[0] || '빈 장')}</span>
     </label>`).join('') +
     `<div class="flex gap-1.5 mt-3">${hBtn('pickAll', '모두')}${hBtn('pickNone', '해제')}</div>`);
@@ -2899,7 +2915,7 @@ let sheetOpen = false;
 function renderMTabs() {
   const t = propTab();
   $('mtabs').innerHTML = PROP_TABS.map(([k, l]) =>
-    `<button data-mtab="${k}" class="flex-1 py-2.5 ${sheetOpen && k === t ? 'text-neutral-900 bg-neutral-100' : 'text-neutral-9000'}">${l}</button>`).join('');
+    `<button data-mtab="${k}" class="flex-1 py-2.5 ${sheetOpen && k === t ? 'text-neutral-900 bg-neutral-100' : 'text-neutral-500'}">${l}</button>`).join('');
 }
 $('mtabs').addEventListener('click', e => {
   const b = e.target.closest('[data-mtab]'); if (!b) return;
@@ -3043,6 +3059,16 @@ async function boot() {
     if (migrated) notify(`이전 작업 ${migrated.cards.length}장을 '내 작업' 폴더로 옮겼습니다`);
   }
   state.folders = folders;
+  /* 예전 기본값이 '엔터 = 다음 장' 이라 이미 저장된 폴더에 그대로 남아 있다.
+     고른 적 없는 설정이므로 한 번만 훑어 꺼준다(표시 설정에서 다시 켤 수 있다). */
+  const appMeta = await metaGet('app');
+  if (!appMeta?.enterFixed) {
+    for (const f of folders) {
+      const deck = await metaGet('deck:' + f.id);
+      if (deck?.style?.enterSplits) { deck.style.enterSplits = false; await metaPut('deck:' + f.id, deck); }
+    }
+    await metaPut('app', { ...(appMeta || {}), enterFixed: true });
+  }
   const app = await metaGet('app');
   const id = folders.some(f => f.id === app?.folderId) ? app.folderId : folders[0].id;
   state.folderId = id;
