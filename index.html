@@ -2300,6 +2300,10 @@ function filePanel() {
   return hSection('폴더', `<div class="flex flex-col gap-0.5">${list}</div>
       <div class="flex gap-1.5 mt-3">${hBtn('newFolder', '새 폴더', 'bg-neutral-100 hover:bg-neutral-200', 'plus')}${hBtn('renameFolder', '이름', 'bg-neutral-100 hover:bg-neutral-200', 'pencil')}</div>
       <div class="flex gap-1.5 mt-1.5">${hBtn('dupFolder', '복제', 'bg-neutral-100 hover:bg-neutral-200', 'copy')}${hBtn('delFolder', '삭제', 'bg-neutral-100 hover:bg-neutral-200 text-neutral-600', 'trash')}</div>`) +
+    hSection('작업 백업',
+      `<div class="flex gap-1.5">${hBtn('backupOne', '이 폴더', 'bg-neutral-100 hover:bg-neutral-200', 'download')}${hBtn('backupAll', '전체', 'bg-neutral-100 hover:bg-neutral-200', 'download')}</div>
+       <div class="flex gap-1.5 mt-1.5">${hBtn('restore', '가져오기', 'bg-neutral-100 hover:bg-neutral-200', 'upload')}</div>
+       <p class="text-neutral-500 mt-3 text-[11px]">사진·영상까지 zip 하나로 받습니다 · 가져오기는 늘 새 폴더로 들어가서 지금 작업을 덮지 않습니다</p>`) +
     hSection('서식 템플릿', tpl +
       `<div class="flex gap-1.5 mt-3">${hBtn('tplSave', '지금 서식 저장', 'bg-neutral-200 hover:bg-neutral-300')}</div>
        <div class="flex gap-1.5 mt-1.5">${hBtn('tplExport', '파일로', 'bg-neutral-100 hover:bg-neutral-200', 'download')}${hBtn('tplImport', '가져오기', 'bg-neutral-100 hover:bg-neutral-200', 'upload')}</div>`);
@@ -2495,6 +2499,194 @@ async function importTemplates(file) {
     notify(`템플릿 ${items.length}개를 가져왔습니다`);
   } catch (_) { notify('템플릿 파일을 읽지 못했습니다'); }
 }
+
+/* ==========================================================================
+   작업 백업 — 폴더를 사진·영상까지 통째로 파일 하나로
+   주소가 바뀌면 브라우저 저장소는 새로 시작하므로, 옮기려면 이 길뿐이다.
+   압축 없는(stored) zip 을 손으로 쓴다: 사진이 이미 jpeg 라 압축해봐야 안 줄고,
+   이렇게 두면 파인더에서 열어 사진만 꺼낼 수도 있다.
+   ========================================================================== */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1;
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+const utf8 = s => new TextEncoder().encode(s);
+
+/* zip wants MS-DOS time; the exact minute does not matter, only that it is legal */
+function dosTime(d = new Date()) {
+  return {
+    t: ((d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() / 2)) & 0xFFFF,
+    d: (((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate()) & 0xFFFF,
+  };
+}
+function zipBuild(entries) {
+  const { t, d } = dosTime();
+  const parts = [], central = [];
+  let offset = 0;
+  for (const e of entries) {
+    const name = utf8(e.name);
+    const crc = crc32(e.bytes);
+    const size = e.bytes.length;
+    const local = new DataView(new ArrayBuffer(30));
+    local.setUint32(0, 0x04034b50, true);
+    local.setUint16(4, 20, true);
+    local.setUint16(6, 0x0800, true);      /* 이름이 UTF-8 이라고 알려준다 */
+    local.setUint16(8, 0, true);           /* stored */
+    local.setUint16(10, t, true); local.setUint16(12, d, true);
+    local.setUint32(14, crc, true);
+    local.setUint32(18, size, true); local.setUint32(22, size, true);
+    local.setUint16(26, name.length, true); local.setUint16(28, 0, true);
+    parts.push(local.buffer, name, e.bytes);
+
+    const cd = new DataView(new ArrayBuffer(46));
+    cd.setUint32(0, 0x02014b50, true);
+    cd.setUint16(4, 20, true); cd.setUint16(6, 20, true);
+    cd.setUint16(8, 0x0800, true); cd.setUint16(10, 0, true);
+    cd.setUint16(12, t, true); cd.setUint16(14, d, true);
+    cd.setUint32(16, crc, true);
+    cd.setUint32(20, size, true); cd.setUint32(24, size, true);
+    cd.setUint16(28, name.length, true);
+    cd.setUint32(42, offset, true);
+    central.push(cd.buffer, name);
+    offset += 30 + name.length + size;
+  }
+  const cdSize = central.reduce((a, b) => a + b.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true);
+  end.setUint16(8, entries.length, true); end.setUint16(10, entries.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, end.buffer], { type: 'application/zip' });
+}
+async function zipRead(file) {
+  const buf = new Uint8Array(await file.arrayBuffer());
+  const view = new DataView(buf.buffer);
+  let eocd = -1;
+  for (let i = buf.length - 22; i >= Math.max(0, buf.length - 66000); i--) {
+    if (view.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error('zip 이 아닙니다');
+  const count = view.getUint16(eocd + 10, true);
+  let p = view.getUint32(eocd + 16, true);
+  const out = new Map();
+  for (let n = 0; n < count; n++) {
+    if (view.getUint32(p, true) !== 0x02014b50) throw new Error('목록이 깨졌습니다');
+    const method = view.getUint16(p + 10, true);
+    const size = view.getUint32(p + 24, true);
+    const nameLen = view.getUint16(p + 28, true);
+    const extraLen = view.getUint16(p + 30, true);
+    const cmtLen = view.getUint16(p + 32, true);
+    const at = view.getUint32(p + 42, true);
+    const name = new TextDecoder().decode(buf.subarray(p + 46, p + 46 + nameLen));
+    if (method !== 0) throw new Error('압축된 zip 은 읽지 못합니다');
+    const lnLen = view.getUint16(at + 26, true), leLen = view.getUint16(at + 28, true);
+    const start = at + 30 + lnLen + leLen;
+    out.set(name, buf.subarray(start, start + size));
+    p += 46 + nameLen + extraLen + cmtLen;
+  }
+  return out;
+}
+
+/* 확장자를 붙여둬야 파인더에서 눌렀을 때 사진으로 열린다 */
+const EXT = { 'image/jpeg':'.jpg', 'image/png':'.png', 'image/webp':'.webp', 'image/gif':'.gif',
+  'video/mp4':'.mp4', 'video/quicktime':'.mov', 'video/webm':'.webm' };
+function extOf(blob) {
+  if (EXT[blob.type]) return EXT[blob.type];
+  const m = /(\.[a-z0-9]{2,5})$/i.exec(blob.name || '');
+  return m ? m[1].toLowerCase() : '';
+}
+const humanSize = n => n > 1024 * 1024 ? (n / 1024 / 1024).toFixed(1) + 'MB' : Math.max(1, Math.round(n / 1024)) + 'KB';
+const stamp = () => { const d = new Date(), p = x => String(x).padStart(2, '0'); return `${d.getFullYear()}${p(d.getMonth() + 1)}${p(d.getDate())}`; };
+
+/* the open folder is only in memory until it is saved, so flush it first */
+async function backup(ids) {
+  if (busy) return;
+  setBusy(true, '백업 준비');
+  try {
+    clearTimeout(saveTimer);
+    await saveDeck();
+    const manifest = { kind: 'carousel-backup', v: 1, at: Date.now(), folders: [], blobs: {} };
+    const entries = [];
+    const seen = new Set();
+    let bytes = 0;
+    for (const id of ids) {
+      const deck = await metaGet('deck:' + id);
+      if (!deck) continue;
+      manifest.folders.push({ id, name: folderName(id), deck });
+      const bids = new Set();
+      for (const c of deck.cards || []) {
+        if (c.bid) bids.add(c.bid);
+        (c.overlays || []).forEach(o => o.bid && bids.add(o.bid));
+      }
+      for (const bid of bids) {
+        if (seen.has(bid)) continue;
+        seen.add(bid);
+        const blob = await idb('blobs', 'readonly', st => st.get(bid));
+        if (!blob) continue;
+        const file = `blobs/${bid}${extOf(blob)}`;
+        manifest.blobs[bid] = { type: blob.type || '', name: blob.name || '', file };
+        entries.push({ name: file, bytes: new Uint8Array(await blob.arrayBuffer()) });
+        bytes += blob.size;
+        setBusy(true, `백업 ${humanSize(bytes)}`);
+      }
+    }
+    if (!manifest.folders.length) { notify('백업할 폴더가 없습니다'); return; }
+    entries.unshift({ name: 'carousel.json', bytes: utf8(JSON.stringify(manifest)) });
+    const zip = zipBuild(entries);
+    const label = ids.length === 1 ? folderName(ids[0]) : '전체';
+    download(zip, `캐러셀-백업-${label}-${stamp()}.zip`);
+    notify(`${manifest.folders.length}개 폴더 · 사진 ${seen.size}개 · ${humanSize(zip.size)} 로 저장했습니다`);
+  } catch (e) {
+    notify('백업하지 못했습니다 · ' + (e?.message || ''));
+  } finally { setBusy(false); }
+}
+defAct('backupOne', () => backup([state.folderId]));
+defAct('backupAll', () => backup(state.folders.map(f => f.id)));
+defAct('restore', () => pickZip.click());
+
+/* 가져오기는 늘 새 폴더로 들어간다 — 지금 작업을 덮어쓰는 일은 없다 */
+async function restore(file) {
+  if (!file || busy) return;
+  setBusy(true, '가져오는 중');
+  try {
+    const files = await zipRead(file);
+    const raw = files.get('carousel.json');
+    if (!raw) throw new Error('캐러셀 백업 파일이 아닙니다');
+    const man = JSON.parse(new TextDecoder().decode(raw));
+    if (man.kind !== 'carousel-backup') throw new Error('캐러셀 백업 파일이 아닙니다');
+
+    keepStorage();
+    for (const [bid, meta] of Object.entries(man.blobs || {})) {
+      const bytes = files.get(meta.file || 'blobs/' + bid);
+      if (!bytes) continue;
+      /* 이름을 살려둬야 확장자로 종류를 알아낼 수 있다 (아이폰은 type 이 빌 때가 있다) */
+      await putBlob(bid, new File([bytes], meta.name || bid, { type: meta.type || '' }));
+    }
+    let first = null;
+    for (const f of man.folders || []) {
+      const id = 'f' + nid();
+      const name = uniqueName(f.name || '가져온 작업', state.folders.map(x => x.name));
+      state.folders.unshift({ id, name, at: Date.now() });
+      await metaPut('deck:' + id, f.deck);
+      if (!first) first = id;
+    }
+    await metaPut('folders', state.folders);
+    if (first) await openFolder(first);
+    notify(`폴더 ${man.folders.length}개를 가져왔습니다`);
+  } catch (e) {
+    notify('가져오지 못했습니다 · ' + (e?.message || ''));
+  } finally { setBusy(false); renderLeft(); }
+}
+const pickZip = hiddenInput('.zip,application/zip', false, f => restore(f[0]));
 
 /* ==========================================================================
    export

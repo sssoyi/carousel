@@ -1,7 +1,7 @@
 /* offline shell for the carousel editor.
    VERSION is rewritten by 배포하기.command on every deploy, which is what
    retires the old cache — never edit it by hand and expect an update to land. */
-const VERSION = '20260803-154253';
+const VERSION = '20260803-162548';
 const CACHE = `carousel-${VERSION}`;
 
 const SHELL = [
