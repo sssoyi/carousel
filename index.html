@@ -333,7 +333,7 @@ function facesInUse() {
 const DEFAULT_STYLE = {
   titleSize: 72, subSize: 38, lineHeight: 1.35, letterSpacing: -3,
   align: 'left', titleWeight: 500, subWeight: 400,
-  titleFace: 'pre-m', subFace: 'pre-r',
+  titleFace: 'pap-sb', subFace: 'pap-r',
   color: '#ffffff', subOpacity: 90, padX: 72, padBottom: 110,
   cardBg: '#0a0a0a',
   gradOn: true, gradDir: 'bottom', darken: 45, fill: 0,
@@ -3062,12 +3062,19 @@ async function boot() {
   /* 예전 기본값이 '엔터 = 다음 장' 이라 이미 저장된 폴더에 그대로 남아 있다.
      고른 적 없는 설정이므로 한 번만 훑어 꺼준다(표시 설정에서 다시 켤 수 있다). */
   const appMeta = await metaGet('app');
-  if (!appMeta?.enterFixed) {
+  if (!appMeta?.enterFixed || !appMeta?.faceFixed) {
     for (const f of folders) {
       const deck = await metaGet('deck:' + f.id);
-      if (deck?.style?.enterSplits) { deck.style.enterSplits = false; await metaPut('deck:' + f.id, deck); }
+      if (!deck?.style) continue;
+      let touched = false;
+      if (deck.style.enterSplits) { deck.style.enterSplits = false; touched = true; }
+      /* 옛 기본값 그대로인 폴더만 새 기본값으로 옮긴다 — 직접 고르신 서체는 그대로 */
+      if (deck.style.titleFace === 'pre-m' && deck.style.subFace === 'pre-r') {
+        deck.style.titleFace = 'pap-sb'; deck.style.subFace = 'pap-r'; touched = true;
+      }
+      if (touched) await metaPut('deck:' + f.id, deck);
     }
-    await metaPut('app', { ...(appMeta || {}), enterFixed: true });
+    await metaPut('app', { ...(appMeta || {}), enterFixed: true, faceFixed: true });
   }
   const app = await metaGet('app');
   const id = folders.some(f => f.id === app?.folderId) ? app.folderId : folders[0].id;
